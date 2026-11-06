@@ -1,843 +1,715 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการคิวเช่ารถ - Car Rental Management System</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font (Kanit) -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#262f8f">
+<title>ระบบจัดการคิวเช่ารถ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky indigo bar → tabs → toolbar → card grid; history tab is a plain text ledger */
+:root{
+  --bg:#f2f3f8; --surface:#ffffff; --surface-2:#f6f7fb; --line:#e1e4ee; --line-2:#cdd2e1;
+  --fg:#1c2033; --muted:#5d6480; --faint:#8a90a8;
+  --accent:#3b4fd8; --accent-ink:#ffffff; --accent-soft:#e8ebff;
+  --bar:#262f8f; --bar-ink:#ffffff; --bar-muted:#c3c9ff;
+  --ok:#0f8a5f; --ok-soft:#e1f5ec; --info:#2f5fd0; --info-soft:#e6eeff;
+  --done:#5d6480; --done-soft:#eceef4; --bad:#c53a4e; --bad-soft:#fde9ec;
+  --warn:#9a6200; --warn-soft:#fff3d6;
+  --f-display:'Kanit',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans Thai','Kanit',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12141d; --surface:#1a1d29; --surface-2:#212534; --line:#2c3144; --line-2:#3a4058;
+  --fg:#e8eaf3; --muted:#a2a8c3; --faint:#7d84a0;
+  --accent:#7d8cff; --accent-ink:#10132a; --accent-soft:#252b55;
+  --bar:#1b2160; --bar-ink:#f1f2ff; --bar-muted:#a9b1ff;
+  --ok:#4fd1a0; --ok-soft:#173a2f; --info:#86a8ff; --info-soft:#1f2a4d;
+  --done:#a2a8c3; --done-soft:#262a3a; --bad:#ff8a9a; --bad-soft:#41202a;
+  --warn:#f5c060; --warn-soft:#3a2f14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12141d; --surface:#1a1d29; --surface-2:#212534; --line:#2c3144; --line-2:#3a4058;
+  --fg:#e8eaf3; --muted:#a2a8c3; --faint:#7d84a0;
+  --accent:#7d8cff; --accent-ink:#10132a; --accent-soft:#252b55;
+  --bar:#1b2160; --bar-ink:#f1f2ff; --bar-muted:#a9b1ff;
+  --ok:#4fd1a0; --ok-soft:#173a2f; --info:#86a8ff; --info-soft:#1f2a4d;
+  --done:#a2a8c3; --done-soft:#262a3a; --bad:#ff8a9a; --bad-soft:#41202a;
+  --warn:#f5c060; --warn-soft:#3a2f14; color-scheme:dark}
+*{box-sizing:border-box}
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bar)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--bar);color:var(--bar-ink)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center}
+.brand .logo svg{width:22px;height:22px}
+.brand h1{font-size:19px;line-height:1.2}
+.brand p{margin:0;font-size:12px;color:var(--bar-muted);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);display:inline-block}
+.dot.live{background:#4fd1a0;box-shadow:0 0 0 3px rgba(79,209,160,.25)}
+.dot.slow{background:#f5c060}
+.stats{display:flex;gap:8px;font-size:13px}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);padding:5px 12px;border-radius:9px;white-space:nowrap}
+.stat b{font-family:var(--f-display);font-size:15px;font-variant-numeric:tabular-nums;margin:0 2px}
+.stat span{color:var(--bar-muted)}
+
+main.wrap{padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;font-family:var(--f-display);font-weight:500}
+.tab:hover{color:var(--fg);border-color:var(--line-2)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab .n{font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
+
+.toolbar{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.toolbar .filters{display:flex;flex-wrap:wrap;gap:8px;flex:1;justify-content:flex-end;min-width:0}
+.toolbar h2{font-size:17px}
+.toolbar .sub{font-size:12px;color:var(--muted);margin:2px 0 0}
+.field{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:14px;min-width:0}
+.search{position:relative;flex:1 1 200px;max-width:300px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search input{width:100%;padding-left:32px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-family:var(--f-display);font-weight:500;font-size:14px;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.btn.ghost:hover{color:var(--fg);background:var(--surface-2)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{border:0;background:transparent;color:var(--faint);padding:6px;border-radius:8px;cursor:pointer;display:inline-grid;place-items:center}
+.icon-btn:hover{background:var(--surface-2);color:var(--accent)}
+.icon-btn.del:hover{color:var(--bad)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;font-family:var(--f-display)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-active{background:var(--ok-soft);color:var(--ok)}
+.s-booked{background:var(--info-soft);color:var(--info)}
+.s-returned{background:var(--done-soft);color:var(--done)}
+.s-cancel{background:var(--bad-soft);color:var(--bad)}
+.card.is-active{border-left:4px solid var(--ok)}
+.card.is-booked{border-left:4px solid var(--info)}
+.carbox{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.cat{font-size:12px;color:var(--muted)}
+.carbox h3,.card h3{font-size:16px;line-height:1.35}
+.plate{display:inline-block;margin-top:4px;font-family:var(--f-mono);font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--line-2);border-radius:5px;padding:1px 8px}
+.who{display:flex;flex-direction:column;gap:2px}
+.who b{font-family:var(--f-display);font-weight:500;font-size:15px}
+.who .tel{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.who .tel a{color:inherit}
+.dates{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:9px 0}
+.dates dt{color:var(--muted)} .dates dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.dur{grid-column:1/-1;text-align:right;font-size:12px;color:var(--faint)}
+.note{font-size:13px;background:var(--warn-soft);color:var(--fg);border-radius:9px;padding:8px 10px;overflow-wrap:anywhere}
+.note.plain{background:var(--surface-2);color:var(--muted)}
+.card-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
+.price{font-family:var(--f-display);font-size:19px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.meta{font-size:12px;color:var(--faint)}
+
+.empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--r);padding:40px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty h3{font-size:17px}
+.empty p{margin:0;color:var(--muted);font-size:14px;max-width:44ch}
+
+.banner{border-radius:10px;padding:10px 14px;font-size:14px;background:var(--warn-soft);color:var(--fg);border:1px solid var(--line)}
+
+/* history ledger */
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.ledger ol{list-style:none;margin:0;padding:0}
+.ledger li{display:grid;grid-template-columns:150px 1fr;gap:4px 16px;padding:11px 16px;border-top:1px solid var(--line);font-size:14px}
+.ledger li:first-child{border-top:0}
+.ledger time{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+.ledger .txt{min-width:0;overflow-wrap:anywhere}
+.ledger .by{font-size:12px;color:var(--faint);margin-left:6px}
+.tag{font-family:var(--f-display);font-size:12px;font-weight:500;padding:1px 8px;border-radius:6px;margin-right:6px}
+.t-add{background:var(--ok-soft);color:var(--ok)} .t-edit{background:var(--info-soft);color:var(--info)} .t-del{background:var(--bad-soft);color:var(--bad)}
+.daysep{background:var(--surface-2);font-family:var(--f-display);font-size:13px;color:var(--muted);padding:6px 16px !important;display:block !important}
+@media (max-width:560px){.ledger li{grid-template-columns:1fr}.stats{width:100%}.stat{flex:1;text-align:center}}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,12,25,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:640px;border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal.sm{max-width:440px}
+.modal header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.modal header h3{font-size:18px}
+.modal form,.modal .body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.02em;min-width:0}
+label.f .req{color:var(--bad)}
+label.f .field{width:100%;font-size:15px;color:var(--fg)}
+.timebox{background:var(--accent-soft);border-radius:12px;padding:12px}
+.hint{font-size:12px;color:var(--faint);margin:0}
+.actions{display:flex;justify-content:flex-end;gap:10px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.warnline{font-size:13px;background:var(--warn-soft);color:var(--fg);border-radius:9px;padding:8px 10px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.overlay{animation:fade .12s ease-out}@keyframes fade{from{opacity:0}}}
+.userchip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--bar-muted)}
+.userchip button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:var(--bar-ink);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px}
+.login{position:fixed;inset:0;z-index:70;background:var(--bg);display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.login .modal{max-width:400px}
+.login .err{color:var(--bad);font-size:13px;margin:0}
+.setup{font-size:14px;color:var(--muted)} .setup code{font-family:var(--f-mono);background:var(--surface-2);padding:1px 6px;border-radius:5px}
+</style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col">
+<body>
 
-    <!-- Top Navigation Header -->
-    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-800 text-white shadow-lg sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md">
-                    <i class="fa-solid fa-car-side text-2xl text-blue-200"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg sm:text-xl tracking-wide leading-tight">ระบบจัดการคิวเช่ารถ</h1>
-                    <p class="text-xs text-blue-200 font-light hidden sm:block">Car Rental Booking & Fleet Manager</p>
-                </div>
-            </div>
-            
-            <!-- Quick Stats Header -->
-            <div class="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm">
-                <div class="bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                    <span class="text-blue-200">รถทั้งหมด:</span>
-                    <span id="stat-total-cars" class="font-bold ml-1 text-white">0</span> คัน
-                </div>
-                <div class="bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                    <span class="text-blue-200">กำลังเช่า:</span>
-                    <span id="stat-active-bookings" class="font-bold ml-1 text-emerald-300">0</span> รายการ
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
-        
-        <!-- Tab Navigation Buttons -->
-        <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-3">
-            <button onclick="switchTab('bookings')" id="tab-btn-bookings" class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-500/20">
-                <i class="fa-regular fa-calendar-check"></i>
-                <span>รายการคิวจอง/เช่ารถ</span>
-            </button>
-            <button onclick="switchTab('cars')" id="tab-btn-cars" class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-100 shadow-sm border border-slate-200">
-                <i class="fa-solid fa-car"></i>
-                <span>จัดการรถในร้าน (Fleet Manager)</span>
-            </button>
-        </div>
-
-        <!-- ================= TAB 1: BOOKING MANAGEMENT ================= -->
-        <section id="tab-content-bookings" class="space-y-6">
-            
-            <!-- Top Action Bar & Filters -->
-            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
-                
-                <!-- Action Button -->
-                <button onclick="openBookingModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 text-sm sm:text-base">
-                    <i class="fa-solid fa-plus text-sm"></i>
-                    <span>เพิ่มคิวเช่ารถใหม่</span>
-                </button>
-
-                <!-- Search & Filter Options -->
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3 flex-1 lg:justify-end">
-                    <!-- Search Input -->
-                    <div class="relative flex-1 min-w-[180px] max-w-xs">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="booking-search" oninput="renderBookings()" placeholder="ค้นหาชื่อผู้เช่า, เบอร์, รถ..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <!-- Filter Category -->
-                    <select id="booking-filter-category" onchange="renderBookings()" class="bg-slate-50 border border-slate-200 text-slate-700 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="ALL">ประเภทรถทั้งหมด</option>
-                        <option value="Sedan">รถเก๋ง / Sedan</option>
-                        <option value="SUV">รถ SUV / MPV</option>
-                        <option value="Pickup">รถกระบะ / Pickup</option>
-                        <option value="Van">รถตู้ / Van</option>
-                        <option value="Motorcycle">มอเตอร์ไซค์</option>
-                        <option value="Other">อื่นๆ</option>
-                    </select>
-
-                    <!-- Filter Status -->
-                    <select id="booking-filter-status" onchange="renderBookings()" class="bg-slate-50 border border-slate-200 text-slate-700 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="ALL">สถานะทั้งหมด</option>
-                        <option value="กำลังเช่า">กำลังเช่าอยู่</option>
-                        <option value="จองแล้ว">จองแล้ว</option>
-                        <option value="คืนแล้ว">คืนรถเรียบร้อย</option>
-                        <option value="ยกเลิก">ยกเลิก</option>
-                    </select>
-
-                    <!-- Filter Date -->
-                    <input type="date" id="booking-filter-date" onchange="renderBookings()" class="bg-slate-50 border border-slate-200 text-slate-700 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    
-                    <button onclick="resetBookingFilters()" class="text-slate-500 hover:text-slate-700 p-2 text-sm title='รีเซ็ตการกรอง'">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Booking List Output (Cards or Table view) -->
-            <div id="bookings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Data will be populated by JS -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="no-bookings-msg" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200/80 shadow-sm">
-                <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i class="fa-regular fa-folder-open"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-slate-700 mb-1">ไม่พบข้อมูลคิวเช่ารถ</h3>
-                <p class="text-slate-500 text-sm mb-4">ยังไม่มีการเพิ่มคิวเช่า หรือ ไม่พบข้อมูลที่ตรงกับการกรอง</p>
-                <button onclick="openBookingModal()" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> เพิ่มคิวเช่าแรกเลย
-                </button>
-            </div>
-        </section>
-
-
-        <!-- ================= TAB 2: CAR FLEET MANAGEMENT ================= -->
-        <section id="tab-content-cars" class="hidden space-y-6">
-            
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-lg font-semibold text-slate-800">รายชื่อรถทั้งหมดในร้าน</h2>
-                    <p class="text-xs text-slate-500">บันทึกข้อมูลรถไว้ล่วงหน้า เพื่อเลือกดึงมาจัดคิวเช่าได้ทันที ไม่ต้องพิมพ์ซ้ำ</p>
-                </div>
-                <button onclick="openCarModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-emerald-600/20 flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-plus text-sm"></i>
-                    <span>เพิ่มรถเข้าในร้าน</span>
-                </button>
-            </div>
-
-            <!-- Cars Fleet Grid -->
-            <div id="cars-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                <!-- Data populated by JS -->
-            </div>
-
-            <!-- Empty State Cars -->
-            <div id="no-cars-msg" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200/80 shadow-sm">
-                <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i class="fa-solid fa-car-side"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-slate-700 mb-1">ยังไม่มีรถในระบบ</h3>
-                <p class="text-slate-500 text-sm mb-4">เพิ่มรถที่มีในร้านของคุณเพื่อความสะดวกในการจัดคิวเช่า</p>
-                <button onclick="openCarModal()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> เพิ่มรถคันแรก
-                </button>
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            ระบบจัดการคิวเช่ารถ • บันทึกข้อมูลปลอดภัยในระบบ LocalStorage ไม่สูญหายเมื่อปิดเบราว์เซอร์
-        </div>
-    </footer>
-
-
-    <!-- ================= MODAL: ADD/EDIT BOOKING ================= -->
-    <div id="modal-booking" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden my-8 transform transition-all">
-            <!-- Modal Header -->
-            <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
-                <h3 id="modal-booking-title" class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-plus text-blue-400"></i>
-                    <span>เพิ่มคิวเช่ารถใหม่</span>
-                </h3>
-                <button onclick="closeBookingModal()" class="text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Modal Form -->
-            <form id="form-booking" onsubmit="saveBooking(event)" class="p-6 space-y-4">
-                <input type="hidden" id="booking-id">
-
-                <!-- Car Selector -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">เลือกรถในร้าน <span class="text-red-500">*</span></label>
-                    <select id="booking-car-id" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <!-- Options generated dynamically -->
-                    </select>
-                    <p class="text-[11px] text-slate-400 mt-1">*หากไม่มีรถในรายการ สามารถไปเพิ่มรถได้ที่เมนู "จัดการรถในร้าน"</p>
-                </div>
-
-                <!-- Customer Details -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">ชื่อ-นามสกุล ผู้เช่า <span class="text-red-500">*</span></label>
-                        <input type="text" id="booking-customer-name" required placeholder="นาย สมชาย ใจดี" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
-                        <input type="tel" id="booking-customer-phone" required placeholder="081-234-5678" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <!-- Pickup & Return Datetime -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                    <div>
-                        <label class="block text-xs font-semibold text-blue-900 uppercase mb-1"><i class="fa-solid fa-hourglass-start text-blue-600 mr-1"></i> วัน-เวลา รับรถ <span class="text-red-500">*</span></label>
-                        <input type="datetime-local" id="booking-pickup" required class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-blue-900 uppercase mb-1"><i class="fa-solid fa-hourglass-end text-blue-600 mr-1"></i> วัน-เวลา คืนรถ <span class="text-red-500">*</span></label>
-                        <input type="datetime-local" id="booking-return" required class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <!-- Status & Rental Fee -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">สถานะคิว <span class="text-red-500">*</span></label>
-                        <select id="booking-status" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="จองแล้ว">📅 จองแล้ว</option>
-                            <option value="กำลังเช่า">🔑 กำลังเช่าอยู่</option>
-                            <option value="คืนแล้ว">✅ คืนรถเรียบร้อย</option>
-                            <option value="ยกเลิก">❌ ยกเลิก</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">ค่าเช่ารวม (บาท)</label>
-                        <input type="number" id="booking-price" min="0" placeholder="เช่น 1500" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <!-- Comments / Notes -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">หมายเหตุ / บันทึกเพิ่มเติม (เฉพาะคันนี้)</label>
-                    <textarea id="booking-notes" rows="3" placeholder="ระบุเงินมัดจำ, รอยขีดข่วนเดิม, สถานที่ส่งรถ หรือข้อความสำคัญ..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeBookingModal()" class="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-sm transition font-medium">ยกเลิก</button>
-                    <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm transition font-medium shadow-md shadow-blue-500/20">บันทึกคิวเช่า</button>
-                </div>
-            </form>
-        </div>
+<header class="bar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo"><svg class="i" viewBox="0 0 24 24"><path d="M5 17h14M3 13l2-6h14l2 6v4H3z"/><circle cx="7.5" cy="17" r="1.6"/><circle cx="16.5" cy="17" r="1.6"/></svg></div>
+      <div>
+        <h1>ระบบจัดการคิวเช่ารถ</h1>
+        <p><span class="dot" id="conn-dot"></span><span id="conn-text">กำลังเชื่อมต่อ…</span></p>
+      </div>
     </div>
-
-
-    <!-- ================= MODAL: ADD/EDIT CAR FLEET ================= -->
-    <div id="modal-car" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
-            <!-- Modal Header -->
-            <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
-                <h3 id="modal-car-title" class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-car text-emerald-400"></i>
-                    <span>เพิ่มรถใหม่เข้าในร้าน</span>
-                </h3>
-                <button onclick="closeCarModal()" class="text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Modal Form -->
-            <form id="form-car" onsubmit="saveCar(event)" class="p-6 space-y-4">
-                <input type="hidden" id="car-id">
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">ยี่ห้อและรุ่นรถ <span class="text-red-500">*</span></label>
-                    <input type="text" id="car-model" required placeholder="เช่น Toyota Yaris Ativ" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">ทะเบียนรถ <span class="text-red-500">*</span></label>
-                    <input type="text" id="car-plate" required placeholder="เช่น กข 1234 กทม" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">ประเภท/หมวดหมู่อุปกรณ์ <span class="text-red-500">*</span></label>
-                    <select id="car-category" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                        <option value="Sedan">🚗 รถเก๋ง / Sedan</option>
-                        <option value="SUV">🚙 รถ SUV / MPV</option>
-                        <option value="Pickup">🛻 รถกระบะ / Pickup</option>
-                        <option value="Van">🚐 รถตู้ / Van</option>
-                        <option value="Motorcycle">🛵 มอเตอร์ไซค์</option>
-                        <option value="Other">🚘 อื่นๆ</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">สีของรถ</label>
-                    <input type="text" id="car-color" placeholder="เช่น สีขาว, สีดำ" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">หมายเหตุประจำรถ (เช่น ประกันภัย, ตำหนิ)</label>
-                    <textarea id="car-notes" rows="2" placeholder="เช่น ประกันชั้น 1 ห้ามสูบบุหรี่ในรถ..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeCarModal()" class="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-sm transition font-medium">ยกเลิก</button>
-                    <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm transition font-medium shadow-md shadow-emerald-500/20">บันทึกรถ</button>
-                </div>
-            </form>
-        </div>
+    <div class="userchip" id="userchip" hidden><span id="user-email"></span><button id="btn-logout">ออกจากระบบ</button></div>
+    <div class="stats">
+      <div class="stat"><span>รถทั้งหมด</span> <b id="st-cars">0</b> คัน</div>
+      <div class="stat"><span>กำลังเช่า</span> <b id="st-active">0</b> รายการ</div>
+      <div class="stat"><span>จองรอรับ</span> <b id="st-booked">0</b></div>
     </div>
-
-
-    <!-- JavaScript Logic -->
-    <script>
-        // Data Structures & Storage Keys
-        const STORAGE_KEY_CARS = 'car_rental_fleet_db';
-        const STORAGE_KEY_BOOKINGS = 'car_rental_bookings_db';
-
-        let cars = [];
-        let bookings = [];
-
-        // Initial Data Sample if empty
-        const initialCars = [
-            { id: 'car-1', model: 'Toyota Yaris Cross', plate: 'กข 9988 กทม', category: 'SUV', color: 'ขาว', notes: 'ประกันชั้น 1 หมดอายุปลายปี' },
-            { id: 'car-2', model: 'Honda City Hatchback', plate: 'ขก 4321 เชียงใหม่', category: 'Sedan', color: 'เทา', notes: 'ติดฟิล์มกรองแสงอย่างดี' },
-            { id: 'car-3', model: 'Honda PCX 160', plate: '1กข 555 ชลบุรี', category: 'Motorcycle', color: 'ดำ', notes: 'มีหมวกกันน็อกให้ 2 ใบ' }
-        ];
-
-        const initialBookings = [
-            {
-                id: 'book-1',
-                carId: 'car-1',
-                customerName: 'คุณสมศักดิ์ สุขใจ',
-                customerPhone: '089-123-4567',
-                pickup: '2026-11-04T09:00',
-                returnDate: '2026-11-06T18:00',
-                status: 'กำลังเช่า',
-                price: 2400,
-                notes: 'มัดจำ 2,000 บาทแล้ว เติมน้ำมันเต็มถัง'
-            }
-        ];
-
-        // On Page Load
-        window.onload = function() {
-            loadData();
-            renderCars();
-            renderBookings();
-            updateStats();
-        };
-
-        // Storage Handlers
-        function loadData() {
-            const storedCars = localStorage.getItem(STORAGE_KEY_CARS);
-            const storedBookings = localStorage.getItem(STORAGE_KEY_BOOKINGS);
-
-            if (storedCars) {
-                cars = JSON.parse(storedCars);
-            } else {
-                cars = initialCars;
-                saveCarsToStorage();
-            }
-
-            if (storedBookings) {
-                bookings = JSON.parse(storedBookings);
-            } else {
-                bookings = initialBookings;
-                saveBookingsToStorage();
-            }
-        }
-
-        function saveCarsToStorage() {
-            localStorage.setItem(STORAGE_KEY_CARS, JSON.stringify(cars));
-        }
-
-        function saveBookingsToStorage() {
-            localStorage.setItem(STORAGE_KEY_BOOKINGS, JSON.stringify(bookings));
-        }
-
-        // Tab Navigation
-        function switchTab(tab) {
-            const bookingsTab = document.getElementById('tab-content-bookings');
-            const carsTab = document.getElementById('tab-content-cars');
-            const btnBookings = document.getElementById('tab-btn-bookings');
-            const btnCars = document.getElementById('tab-btn-cars');
-
-            if (tab === 'bookings') {
-                bookingsTab.classList.remove('hidden');
-                carsTab.classList.add('hidden');
-                btnBookings.className = 'px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-500/20';
-                btnCars.className = 'px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-100 shadow-sm border border-slate-200';
-            } else {
-                bookingsTab.classList.add('hidden');
-                carsTab.classList.remove('hidden');
-                btnCars.className = 'px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-emerald-600 text-white shadow-md shadow-emerald-500/20';
-                btnBookings.className = 'px-5 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-100 shadow-sm border border-slate-200';
-            }
-        }
-
-        // ================= CAR FLEET LOGIC =================
-        function renderCars() {
-            const container = document.getElementById('cars-container');
-            const emptyMsg = document.getElementById('no-cars-msg');
-
-            container.innerHTML = '';
-
-            if (cars.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                return;
-            } else {
-                emptyMsg.classList.add('hidden');
-            }
-
-            cars.forEach(car => {
-                const categoryBadge = getCategoryBadge(car.category);
-                
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="text-xs px-2.5 py-1 rounded-lg font-medium ${categoryBadge.bg} ${categoryBadge.text}">
-                                ${categoryBadge.icon} ${categoryBadge.label}
-                            </span>
-                            <div class="flex space-x-1">
-                                <button onclick="editCar('${car.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition" title="แก้ไข">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button onclick="deleteCar('${car.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 transition" title="ลบ">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <h3 class="font-bold text-slate-800 text-base mb-1">${escapeHtml(car.model)}</h3>
-                        <div class="inline-block bg-slate-100 px-3 py-1 rounded-md text-xs font-mono font-semibold text-slate-700 mb-3 border border-slate-200">
-                            🏷️ ${escapeHtml(car.plate)}
-                        </div>
-
-                        ${car.color ? `<p class="text-xs text-slate-500 mb-2"><i class="fa-solid fa-palette text-slate-400 mr-1"></i> สี: ${escapeHtml(car.color)}</p>` : ''}
-                        
-                        ${car.notes ? `
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs text-slate-600 mt-2">
-                                <i class="fa-regular fa-note-sticky text-amber-500 mr-1"></i> ${escapeHtml(car.notes)}
-                            </div>
-                        ` : ''}
-                    </div>
-
-                    <div class="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>ประวัติการเช่า:</span>
-                        <span class="font-bold text-slate-700">${getCarBookingCount(car.id)} รายการ</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function openCarModal(carId = null) {
-            const modal = document.getElementById('modal-car');
-            const title = document.getElementById('modal-car-title');
-            const form = document.getElementById('form-car');
-
-            form.reset();
-            document.getElementById('car-id').value = '';
-
-            if (carId) {
-                const car = cars.find(c => c.id === carId);
-                if (car) {
-                    title.innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-400"></i><span>แก้ไขข้อมูลรถ</span>`;
-                    document.getElementById('car-id').value = car.id;
-                    document.getElementById('car-model').value = car.model;
-                    document.getElementById('car-plate').value = car.plate;
-                    document.getElementById('car-category').value = car.category;
-                    document.getElementById('car-color').value = car.color || '';
-                    document.getElementById('car-notes').value = car.notes || '';
-                }
-            } else {
-                title.innerHTML = `<i class="fa-solid fa-car text-emerald-400"></i><span>เพิ่มรถใหม่เข้าในร้าน</span>`;
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeCarModal() {
-            document.getElementById('modal-car').classList.add('hidden');
-        }
-
-        function saveCar(e) {
-            e.preventDefault();
-            const id = document.getElementById('car-id').value;
-            const model = document.getElementById('car-model').value.trim();
-            const plate = document.getElementById('car-plate').value.trim();
-            const category = document.getElementById('car-category').value;
-            const color = document.getElementById('car-color').value.trim();
-            const notes = document.getElementById('car-notes').value.trim();
-
-            if (id) {
-                // Update
-                const index = cars.findIndex(c => c.id === id);
-                if (index !== -1) {
-                    cars[index] = { id, model, plate, category, color, notes };
-                }
-            } else {
-                // Add new
-                const newCar = {
-                    id: 'car-' + Date.now(),
-                    model, plate, category, color, notes
-                };
-                cars.push(newCar);
-            }
-
-            saveCarsToStorage();
-            renderCars();
-            renderBookings();
-            updateStats();
-            closeCarModal();
-        }
-
-        function editCar(id) {
-            openCarModal(id);
-        }
-
-        function deleteCar(id) {
-            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรถคันนี้ออกจากร้าน?')) {
-                cars = cars.filter(c => c.id !== id);
-                saveCarsToStorage();
-                renderCars();
-                renderBookings();
-                updateStats();
-            }
-        }
-
-        function getCarBookingCount(carId) {
-            return bookings.filter(b => b.carId === carId).length;
-        }
-
-
-        // ================= BOOKINGS LOGIC =================
-        function renderBookings() {
-            const container = document.getElementById('bookings-container');
-            const emptyMsg = document.getElementById('no-bookings-msg');
-            
-            const search = document.getElementById('booking-search').value.toLowerCase();
-            const filterCat = document.getElementById('booking-filter-category').value;
-            const filterStatus = document.getElementById('booking-filter-status').value;
-            const filterDate = document.getElementById('booking-filter-date').value;
-
-            container.innerHTML = '';
-
-            // Filter logic
-            const filteredBookings = bookings.filter(b => {
-                const car = cars.find(c => c.id === b.carId);
-                const carName = car ? `${car.model} ${car.plate}`.toLowerCase() : '';
-                
-                const matchesSearch = b.customerName.toLowerCase().includes(search) || 
-                                      b.customerPhone.includes(search) || 
-                                      carName.includes(search);
-                                      
-                const matchesCat = filterCat === 'ALL' || (car && car.category === filterCat);
-                const matchesStatus = filterStatus === 'ALL' || b.status === filterStatus;
-                
-                let matchesDate = true;
-                if (filterDate) {
-                    const pickupDateStr = b.pickup.split('T')[0];
-                    const returnDateStr = b.returnDate.split('T')[0];
-                    matchesDate = (filterDate >= pickupDateStr && filterDate <= returnDateStr);
-                }
-
-                return matchesSearch && matchesCat && matchesStatus && matchesDate;
-            });
-
-            if (filteredBookings.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                return;
-            } else {
-                emptyMsg.classList.add('hidden');
-            }
-
-            // Render Booking Cards
-            filteredBookings.forEach(b => {
-                const car = cars.find(c => c.id === b.carId) || { model: 'รถถูกลบจากระบบ', plate: '-', category: 'Other' };
-                const statusBadge = getStatusBadge(b.status);
-                const catBadge = getCategoryBadge(car.category);
-
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between relative overflow-hidden';
-                
-                card.innerHTML = `
-                    <div class="space-y-3">
-                        <!-- Header Status & Action -->
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs px-3 py-1 rounded-full font-semibold border ${statusBadge.bg} ${statusBadge.text} ${statusBadge.border}">
-                                ${statusBadge.label}
-                            </span>
-                            <div class="flex space-x-1">
-                                <button onclick="editBooking('${b.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition" title="แก้ไข">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button onclick="deleteBooking('${b.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 transition" title="ลบ">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Car Info -->
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div class="text-xs text-slate-500 flex items-center gap-1 mb-0.5">
-                                <span class="${catBadge.text}">${catBadge.icon} ${catBadge.label}</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-base leading-snug">${escapeHtml(car.model)}</h4>
-                            <span class="text-xs font-mono font-medium text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200 inline-block mt-1">
-                                🏷️ ${escapeHtml(car.plate)}
-                            </span>
-                        </div>
-
-                        <!-- Customer Info -->
-                        <div class="space-y-1 pt-1">
-                            <div class="flex items-center text-sm font-semibold text-slate-800">
-                                <i class="fa-solid fa-user text-blue-500 w-5"></i>
-                                <span>${escapeHtml(b.customerName)}</span>
-                            </div>
-                            <div class="flex items-center text-xs text-slate-600">
-                                <i class="fa-solid fa-phone text-emerald-500 w-5"></i>
-                                <a href="tel:${b.customerPhone}" class="hover:underline">${escapeHtml(b.customerPhone)}</a>
-                            </div>
-                        </div>
-
-                        <!-- Dates -->
-                        <div class="bg-blue-50/40 p-3 rounded-xl text-xs space-y-1.5 border border-blue-50">
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500"><i class="fa-solid fa-calendar-minus text-blue-500 mr-1"></i> รับรถ:</span>
-                                <span class="font-medium text-slate-700">${formatDateTime(b.pickup)}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-500"><i class="fa-solid fa-calendar-check text-indigo-500 mr-1"></i> คืนรถ:</span>
-                                <span class="font-medium text-slate-700">${formatDateTime(b.returnDate)}</span>
-                            </div>
-                        </div>
-
-                        <!-- Notes & Price -->
-                        ${b.notes ? `
-                            <div class="text-xs bg-amber-50 text-amber-900 p-2.5 rounded-xl border border-amber-100 flex items-start gap-1.5">
-                                <i class="fa-solid fa-note-sticky text-amber-500 mt-0.5"></i>
-                                <span class="break-words flex-1">${escapeHtml(b.notes)}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-
-                    <div class="pt-3 mt-4 border-t border-slate-100 flex justify-between items-center text-xs">
-                        <span class="text-slate-400">ค่าเช่ารวม</span>
-                        <span class="font-bold text-base text-blue-600">${b.price ? Number(b.price).toLocaleString() + ' ฿' : 'ไม่ระบุ'}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function populateCarDropdown() {
-            const select = document.getElementById('booking-car-id');
-            select.innerHTML = '';
-
-            if (cars.length === 0) {
-                select.innerHTML = '<option value="">-- ยังไม่มีรถในร้าน กรุณาเพิ่มรถก่อน --</option>';
-                return;
-            }
-
-            cars.forEach(car => {
-                const option = document.createElement('option');
-                option.value = car.id;
-                option.textContent = `${car.model} (${car.plate}) - ${car.category}`;
-                select.appendChild(option);
-            });
-        }
-
-        function openBookingModal(bookingId = null) {
-            populateCarDropdown();
-
-            if (cars.length === 0) {
-                alert('กรุณาเพิ่มรถเข้าในร้านก่อนสร้างคิวเช่าครับ');
-                switchTab('cars');
-                openCarModal();
-                return;
-            }
-
-            const modal = document.getElementById('modal-booking');
-            const title = document.getElementById('modal-booking-title');
-            const form = document.getElementById('form-booking');
-
-            form.reset();
-            document.getElementById('booking-id').value = '';
-
-            if (bookingId) {
-                const b = bookings.find(item => item.id === bookingId);
-                if (b) {
-                    title.innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-400"></i><span>แก้ไขข้อมูลคิวเช่า</span>`;
-                    document.getElementById('booking-id').value = b.id;
-                    document.getElementById('booking-car-id').value = b.carId;
-                    document.getElementById('booking-customer-name').value = b.customerName;
-                    document.getElementById('booking-customer-phone').value = b.customerPhone;
-                    document.getElementById('booking-pickup').value = b.pickup;
-                    document.getElementById('booking-return').value = b.returnDate;
-                    document.getElementById('booking-status').value = b.status;
-                    document.getElementById('booking-price').value = b.price || '';
-                    document.getElementById('booking-notes').value = b.notes || '';
-                }
-            } else {
-                title.innerHTML = `<i class="fa-solid fa-calendar-plus text-blue-400"></i><span>เพิ่มคิวเช่ารถใหม่</span>`;
-                // Default pickup time to now
-                const now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                document.getElementById('booking-pickup').value = now.toISOString().slice(0, 16);
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeBookingModal() {
-            document.getElementById('modal-booking').classList.add('hidden');
-        }
-
-        function saveBooking(e) {
-            e.preventDefault();
-            const id = document.getElementById('booking-id').value;
-            const carId = document.getElementById('booking-car-id').value;
-            const customerName = document.getElementById('booking-customer-name').value.trim();
-            const customerPhone = document.getElementById('booking-customer-phone').value.trim();
-            const pickup = document.getElementById('booking-pickup').value;
-            const returnDate = document.getElementById('booking-return').value;
-            const status = document.getElementById('booking-status').value;
-            const price = document.getElementById('booking-price').value;
-            const notes = document.getElementById('booking-notes').value.trim();
-
-            if (id) {
-                // Update
-                const index = bookings.findIndex(b => b.id === id);
-                if (index !== -1) {
-                    bookings[index] = { id, carId, customerName, customerPhone, pickup, returnDate, status, price, notes };
-                }
-            } else {
-                // Add new
-                const newBooking = {
-                    id: 'book-' + Date.now(),
-                    carId, customerName, customerPhone, pickup, returnDate, status, price, notes
-                };
-                bookings.push(newBooking);
-            }
-
-            saveBookingsToStorage();
-            renderBookings();
-            updateStats();
-            closeBookingModal();
-        }
-
-        function editBooking(id) {
-            openBookingModal(id);
-        }
-
-        function deleteBooking(id) {
-            if (confirm('คุณต้องการลบคิวเช่านี้ใช่หรือไม่?')) {
-                bookings = bookings.filter(b => b.id !== id);
-                saveBookingsToStorage();
-                renderBookings();
-                updateStats();
-            }
-        }
-
-        function resetBookingFilters() {
-            document.getElementById('booking-search').value = '';
-            document.getElementById('booking-filter-category').value = 'ALL';
-            document.getElementById('booking-filter-status').value = 'ALL';
-            document.getElementById('booking-filter-date').value = '';
-            renderBookings();
-        }
-
-
-        // ================= HELPERS & UTILS =================
-        function updateStats() {
-            document.getElementById('stat-total-cars').textContent = cars.length;
-            const activeCount = bookings.filter(b => b.status === 'กำลังเช่า').length;
-            document.getElementById('stat-active-bookings').textContent = activeCount;
-        }
-
-        function getCategoryBadge(category) {
-            switch(category) {
-                case 'Sedan': return { label: 'รถเก๋ง', bg: 'bg-blue-50', text: 'text-blue-600', icon: '🚗' };
-                case 'SUV': return { label: 'SUV/MPV', bg: 'bg-indigo-50', text: 'text-indigo-600', icon: '🚙' };
-                case 'Pickup': return { label: 'กระบะ', bg: 'bg-orange-50', text: 'text-orange-600', icon: '🛻' };
-                case 'Van': return { label: 'รถตู้', bg: 'bg-purple-50', text: 'text-purple-600', icon: '🚐' };
-                case 'Motorcycle': return { label: 'มอเตอร์ไซค์', bg: 'bg-amber-50', text: 'text-amber-600', icon: '🛵' };
-                default: return { label: 'อื่นๆ', bg: 'bg-slate-100', text: 'text-slate-600', icon: '🚘' };
-            }
-        }
-
-        function getStatusBadge(status) {
-            switch(status) {
-                case 'กำลังเช่า': return { label: '🔑 กำลังเช่าอยู่', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' };
-                case 'จองแล้ว': return { label: '📅 จองแล้ว', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' };
-                case 'คืนแล้ว': return { label: '✅ คืนรถแล้ว', bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' };
-                case 'ยกเลิก': return { label: '❌ ยกเลิก', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' };
-                default: return { label: status, bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' };
-            }
-        }
-
-        function formatDateTime(dateTimeStr) {
-            if (!dateTimeStr) return '-';
-            const dt = new Date(dateTimeStr);
-            const dateStr = dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-            const timeStr = dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            return `${dateStr} เวลา ${timeStr} น.`;
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-    </script>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-bookings" data-tab="bookings" aria-selected="true">
+      <svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>คิวจอง/เช่ารถ <span class="n" id="n-bookings"></span></button>
+    <button class="tab" role="tab" id="tab-cars" data-tab="cars" aria-selected="false">
+      <svg class="i" viewBox="0 0 24 24"><path d="M5 17h14M3 13l2-6h14l2 6v4H3z"/></svg>รถในร้าน <span class="n" id="n-cars"></span></button>
+    <button class="tab" role="tab" id="tab-history" data-tab="history" aria-selected="false">
+      <svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ประวัติการแก้ไข <span class="n" id="n-logs"></span></button>
+  </div>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <!-- BOOKINGS -->
+  <section id="view-bookings" style="display:flex;flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <button class="btn primary w-only" id="btn-add-booking"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>เพิ่มคิวเช่าใหม่</button>
+      <div class="filters">
+        <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="field" id="f-search" type="search" placeholder="ค้นหาชื่อผู้เช่า, เบอร์, รถ, ทะเบียน" aria-label="ค้นหา"></div>
+        <select class="field" id="f-cat" aria-label="ประเภทรถ"><option value="ALL">ประเภทรถทั้งหมด</option></select>
+        <select class="field" id="f-status" aria-label="สถานะ"><option value="ALL">สถานะทั้งหมด</option></select>
+        <input class="field" id="f-date" type="date" aria-label="วันที่">
+        <button class="btn ghost" id="f-reset" title="ล้างตัวกรอง">ล้าง</button>
+      </div>
+    </div>
+    <div class="grid" id="bookings"></div>
+  </section>
+
+  <!-- CARS -->
+  <section id="view-cars" hidden style="flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <div><h2>รายชื่อรถทั้งหมดในร้าน</h2><p class="sub">บันทึกรถไว้ครั้งเดียว แล้วเลือกมาจัดคิวได้ทันที</p></div>
+      <button class="btn primary w-only" id="btn-add-car"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>เพิ่มรถเข้าในร้าน</button>
+    </div>
+    <div class="grid" id="cars"></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="view-history" hidden style="flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <div><h2>ประวัติการแก้ไข</h2><p class="sub">ทุกการเพิ่ม แก้ไข และลบ ถูกบันทึกเป็นข้อความ พร้อมเวลาและชื่อผู้ทำ</p></div>
+      <div class="filters">
+        <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="field" id="h-search" type="search" placeholder="ค้นหาในประวัติ" aria-label="ค้นหาในประวัติ"></div>
+        <button class="btn ghost" id="h-copy"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>คัดลอกเป็นข้อความ</button>
+        <button class="btn ghost" id="h-save"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>บันทึกไฟล์ .txt</button>
+      </div>
+    </div>
+    <div class="ledger" id="ledger"></div>
+  </section>
+</main>
+
+<!-- booking modal -->
+<div class="overlay" id="m-booking" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mb-title">
+    <header><h3 id="mb-title">เพิ่มคิวเช่ารถใหม่</h3><button class="icon-btn" data-close aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <form id="form-booking">
+      <label class="f">เลือกรถในร้าน <span class="req">*</span>
+        <select class="field" id="b-car" required></select></label>
+      <div class="row">
+        <label class="f">ชื่อ-นามสกุล ผู้เช่า <span class="req">*</span><input class="field" id="b-name" required placeholder="นาย สมชาย ใจดี"></label>
+        <label class="f">เบอร์โทรศัพท์ <span class="req">*</span><input class="field" id="b-phone" type="tel" required placeholder="081-234-5678"></label>
+      </div>
+      <div class="row timebox">
+        <label class="f">วัน-เวลา รับรถ <span class="req">*</span><input class="field" id="b-pickup" type="datetime-local" required></label>
+        <label class="f">วัน-เวลา คืนรถ <span class="req">*</span><input class="field" id="b-return" type="datetime-local" required></label>
+      </div>
+      <div id="b-warn" class="warnline" hidden></div>
+      <div class="row">
+        <label class="f">สถานะคิว <span class="req">*</span><select class="field" id="b-status"></select></label>
+        <label class="f">ค่าเช่ารวม (บาท)<input class="field" id="b-price" type="number" min="0" inputmode="numeric" placeholder="เช่น 1500"></label>
+      </div>
+      <label class="f">หมายเหตุ<textarea class="field" id="b-notes" rows="3" placeholder="เงินมัดจำ, รอยขีดข่วนเดิม, สถานที่ส่งรถ"></textarea></label>
+      <div class="actions"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button type="submit" class="btn primary" id="b-submit">บันทึกคิวเช่า</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- car modal -->
+<div class="overlay" id="m-car" hidden>
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="mc-title">
+    <header><h3 id="mc-title">เพิ่มรถใหม่เข้าในร้าน</h3><button class="icon-btn" data-close aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <form id="form-car">
+      <label class="f">ยี่ห้อและรุ่นรถ <span class="req">*</span><input class="field" id="c-model" required placeholder="เช่น Toyota Yaris Ativ"></label>
+      <div class="row">
+        <label class="f">ทะเบียนรถ <span class="req">*</span><input class="field" id="c-plate" required placeholder="กข 1234 กทม"></label>
+        <label class="f">สีของรถ<input class="field" id="c-color" placeholder="เช่น ขาว"></label>
+      </div>
+      <label class="f">ประเภทรถ <span class="req">*</span><select class="field" id="c-cat"></select></label>
+      <label class="f">หมายเหตุประจำรถ<textarea class="field" id="c-notes" rows="2" placeholder="ประกันชั้น 1, ห้ามสูบบุหรี่ในรถ"></textarea></label>
+      <div class="actions"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button type="submit" class="btn primary" id="c-submit">บันทึกรถ</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- confirm modal -->
+<div class="overlay" id="m-confirm" hidden>
+  <div class="modal sm" role="alertdialog" aria-modal="true" aria-labelledby="cf-title">
+    <header><h3 id="cf-title">ยืนยันการลบ</h3></header>
+    <div class="body"><p id="cf-text" style="margin:0"></p>
+      <div class="actions"><button class="btn ghost" data-close>ยกเลิก</button><button class="btn danger" id="cf-ok">ลบ</button></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<!-- login -->
+<div class="login" id="login" hidden>
+  <div class="modal">
+    <header><h3>เข้าสู่ระบบจัดการคิวเช่ารถ</h3></header>
+    <form id="form-login">
+      <div id="setup-msg" class="setup" hidden>ยังไม่ได้ใส่ค่า Firebase ของร้าน เปิดไฟล์ <code>index.html</code> แล้วแก้ส่วน <code>firebaseConfig</code> ตามคู่มือ</div>
+      <label class="f">อีเมล<input class="field" id="l-email" type="email" autocomplete="username" required></label>
+      <label class="f">รหัสผ่าน<input class="field" id="l-pass" type="password" autocomplete="current-password" required></label>
+      <p class="err" id="l-err" hidden></p>
+      <div class="actions"><button type="submit" class="btn primary" id="l-submit">เข้าสู่ระบบ</button></div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+// ====== ใส่ค่า Firebase ของร้านตรงนี้ (Firebase Console → Project settings → Your apps → Web app) ======
+const firebaseConfig = {
+  apiKey: "AIzaSyAJkv9elvj_FOXf_-u2Ig8TsjF1TauVDwU",
+  authDomain: "pygarage-3c74a.firebaseapp.com",
+  projectId: "pygarage-3c74a",
+  storageBucket: "pygarage-3c74a.firebasestorage.app",
+  messagingSenderId: "218595886907",
+  appId: "1:218595886907:web:8d3a44e662d1337bf9191e",
+  measurementId: "G-62FSLJDRQJ"
+};
+// ==========================================================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const CATS = {Sedan:'รถเก๋ง / Sedan',SUV:'SUV / MPV',Pickup:'รถกระบะ',Van:'รถตู้',Motorcycle:'มอเตอร์ไซค์',Other:'อื่นๆ'};
+const STATUS = {
+  'กำลังเช่า':{label:'กำลังเช่าอยู่',cls:'s-active',card:'is-active',order:0},
+  'จองแล้ว':{label:'จองแล้ว',cls:'s-booked',card:'is-booked',order:1},
+  'คืนแล้ว':{label:'คืนรถแล้ว',cls:'s-returned',card:'',order:2},
+  'ยกเลิก':{label:'ยกเลิก',cls:'s-cancel',card:'',order:3}
+};
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ICON = {
+  edit:'<svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  del:'<svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  phone:'<svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>'
+};
+
+let db = null, store = null, auth = null, me = null, canWrite = true;
+const unsubs = [];
+let cars = [], bookings = [], logs = [];
+const ready = {cars:false, bookings:false, logs:false};
+let tab = 'bookings';
+let editing = {booking:null, car:null};
+
+// ---------- formatting ----------
+function fmtDT(s){
+  if(!s) return '-';
+  const d = new Date(s); if(isNaN(d)) return s;
+  return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) + ' น.';
+}
+function fmtStamp(ms){
+  const d = new Date(ms);
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' +
+         d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function dayKey(ms){ return new Date(ms).toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+function duration(a,b){
+  const ms = new Date(b) - new Date(a); if(!(ms>0)) return '';
+  const h = Math.round(ms/36e5), d = Math.floor(h/24), r = h%24;
+  return 'รวม ' + (d? d+' วัน ':'') + (r? r+' ชม.':'');
+}
+const money = v => (v===''||v==null||isNaN(+v)) ? '' : Number(v).toLocaleString('th-TH') + ' ฿';
+const carLabel = c => c ? `${c.model} [${c.plate}]` : 'รถที่ถูกลบ';
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+function setConn(state, text){ $('#conn-dot').className='dot '+state; $('#conn-text').textContent=text; }
+function banner(text){ const b=$('#banner'); b.textContent=text||''; b.hidden=!text; }
+
+// ---------- render ----------
+function render(){
+  $('#st-cars').textContent = cars.length;
+  $('#st-active').textContent = bookings.filter(b=>b.status==='กำลังเช่า').length;
+  $('#st-booked').textContent = bookings.filter(b=>b.status==='จองแล้ว').length;
+  $('#n-bookings').textContent = bookings.length || '';
+  $('#n-cars').textContent = cars.length || '';
+  $('#n-logs').textContent = logs.length || '';
+  document.querySelectorAll('.w-only').forEach(el=>el.hidden=!canWrite);
+  renderBookings(); renderCars(); renderLedger();
+}
+
+function renderBookings(){
+  const box = $('#bookings');
+  if(!ready.bookings){ box.innerHTML = emptyHTML('กำลังโหลดคิวเช่า…','รายการคิวจะขึ้นที่นี่ทันทีที่เชื่อมต่อฐานข้อมูลกลางได้'); return; }
+  const q = $('#f-search').value.trim().toLowerCase(), fc=$('#f-cat').value, fs=$('#f-status').value, fd=$('#f-date').value;
+  const list = bookings.filter(b=>{
+    const car = cars.find(c=>c.id===b.carId);
+    const hay = [b.customerName,b.customerPhone,car?.model,car?.plate,b.carLabel,b.notes].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return false;
+    if(fc!=='ALL' && (car?.category||b.carCategory)!==fc) return false;
+    if(fs!=='ALL' && b.status!==fs) return false;
+    if(fd && !(fd >= (b.pickup||'').slice(0,10) && fd <= (b.returnDate||'').slice(0,10))) return false;
+    return true;
+  }).sort((a,b)=>(STATUS[a.status]?.order??9)-(STATUS[b.status]?.order??9) || String(a.pickup).localeCompare(String(b.pickup)));
+
+  if(!list.length){
+    box.innerHTML = bookings.length
+      ? emptyHTML('ไม่พบคิวที่ตรงกับตัวกรอง','ลองล้างตัวกรองหรือเปลี่ยนคำค้นหา')
+      : emptyHTML('ยังไม่มีคิวเช่า', canWrite?'กด "เพิ่มคิวเช่าใหม่" เพื่อบันทึกคิวแรก ทุกเครื่องจะเห็นพร้อมกัน':'ยังไม่มีคิวเช่าในระบบ');
+    return;
+  }
+  box.innerHTML = list.map(b=>{
+    const car = cars.find(c=>c.id===b.carId);
+    const st = STATUS[b.status] || {label:b.status,cls:'s-returned',card:''};
+    const cat = CATS[car?.category||b.carCategory] || 'อื่นๆ';
+    return `<article class="card ${st.card}">
+      <div class="card-top"><span class="pill ${st.cls}">${esc(st.label)}</span>
+        ${canWrite?`<div><button class="icon-btn" data-edit-booking="${b.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-booking="${b.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
+      <div class="carbox"><div class="cat">${esc(cat)}</div><h3>${esc(car?.model || b.carModel || 'รถที่ถูกลบจากระบบ')}</h3><span class="plate">${esc(car?.plate || b.carPlate || '-')}</span></div>
+      <div class="who"><b>${esc(b.customerName)}</b><span class="tel">${ICON.phone}<a href="tel:${esc((b.customerPhone||'').replace(/[^\d+]/g,''))}">${esc(b.customerPhone)}</a></span></div>
+      <dl class="dates"><dt>รับรถ</dt><dd>${fmtDT(b.pickup)}</dd><dt>คืนรถ</dt><dd>${fmtDT(b.returnDate)}</dd><span class="dur">${duration(b.pickup,b.returnDate)}</span></dl>
+      ${b.notes?`<div class="note">${esc(b.notes)}</div>`:''}
+      <div class="card-foot"><span>ค่าเช่ารวม</span><span class="price">${money(b.price)||'<span class="meta">ไม่ระบุ</span>'}</span></div>
+    </article>`;
+  }).join('');
+}
+
+function renderCars(){
+  const box = $('#cars');
+  if(!ready.cars){ box.innerHTML = emptyHTML('กำลังโหลดรายชื่อรถ…','รถในร้านจะขึ้นที่นี่เมื่อเชื่อมต่อแล้ว'); return; }
+  if(!cars.length){ box.innerHTML = emptyHTML('ยังไม่มีรถในระบบ', canWrite?'กด "เพิ่มรถเข้าในร้าน" เพื่อเริ่มบันทึกรถคันแรก':'ยังไม่มีรถในระบบ'); return; }
+  const sorted = [...cars].sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  box.innerHTML = sorted.map(c=>{
+    const mine = bookings.filter(b=>b.carId===c.id);
+    const now = mine.find(b=>b.status==='กำลังเช่า');
+    return `<article class="card">
+      <div class="card-top"><span class="cat">${esc(CATS[c.category]||'อื่นๆ')}</span>
+        ${canWrite?`<div><button class="icon-btn" data-edit-car="${c.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-car="${c.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
+      <div><h3>${esc(c.model)}</h3><span class="plate">${esc(c.plate)}</span></div>
+      ${c.color?`<div class="meta">สี: ${esc(c.color)}</div>`:''}
+      ${c.notes?`<div class="note plain">${esc(c.notes)}</div>`:''}
+      <div class="card-foot"><span>${now?`<span class="pill s-active">เช่าโดย ${esc(now.customerName)}</span>`:'<span class="pill s-returned">ว่าง</span>'}</span><span>${mine.length} คิว</span></div>
+    </article>`;
+  }).join('');
+}
+
+function logLine(l){
+  const who = l.byName || l.by || 'ระบบ';
+  return `[${fmtStamp(l.at)}] ${who}: ${l.text}`;
+}
+function filteredLogs(){
+  const q = $('#h-search').value.trim().toLowerCase();
+  return q ? logs.filter(l=>logLine(l).toLowerCase().includes(q)) : logs;
+}
+function renderLedger(){
+  const box = $('#ledger');
+  if(!ready.logs){ box.innerHTML = '<div class="empty" style="border:0">กำลังโหลดประวัติ…</div>'; return; }
+  const list = filteredLogs();
+  if(!list.length){ box.innerHTML = `<div class="empty" style="border:0"><h3>${logs.length?'ไม่พบข้อความที่ค้นหา':'ยังไม่มีประวัติ'}</h3><p>ทุกครั้งที่มีการเพิ่ม แก้ไข หรือลบคิวและรถ ระบบจะบันทึกข้อความไว้ที่นี่</p></div>`; return; }
+  let last = '', html = '<ol>';
+  for(const l of list){
+    const dk = dayKey(l.at);
+    if(dk!==last){ html += `<li class="daysep">${esc(dk)}</li>`; last = dk; }
+    const tag = l.kind==='add'?'<span class="tag t-add">เพิ่ม</span>':l.kind==='del'?'<span class="tag t-del">ลบ</span>':'<span class="tag t-edit">แก้ไข</span>';
+    const who = l.byName || l.by || 'ระบบ';
+    html += `<li><time>${new Date(l.at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</time><div class="txt">${tag}${esc(l.text)}<span class="by">โดย ${esc(who)}</span></div></li>`;
+  }
+  box.innerHTML = html + '</ol>';
+}
+function emptyHTML(t,p){ return `<div class="empty" style="grid-column:1/-1"><h3>${esc(t)}</h3><p>${esc(p)}</p></div>`; }
+
+// ---------- writes ----------
+function handleErr(e){
+  if(e?.code==='permission-denied') toast('บัญชีนี้ไม่มีสิทธิ์บันทึก ตรวจกฎ Firestore หรือเข้าสู่ระบบใหม่');
+  else if(e?.code==='resource-exhausted') toast('ใช้งานเกินโควตาฟรีของ Firebase วันนี้ ลองใหม่พรุ่งนี้หรืออัปเกรดแพ็กเกจ');
+  else toast('บันทึกไม่สำเร็จ ลองอีกครั้ง');
+}
+// บันทึกลงเครื่องทันที (ใช้ได้แม้ออฟไลน์) แล้วค่อยส่งขึ้นเซิร์ฟเวอร์
+async function run(fn){
+  if(!db){ toast('ยังเชื่อมต่อฐานข้อมูลไม่ได้'); return false; }
+  let late = false;
+  try{
+    const p = fn();
+    p.catch(e=>{ if(late) handleErr(e); });
+    await Promise.race([p, new Promise(r=>setTimeout(r,1500))]);
+    return true;
+  }catch(e){ handleErr(e); return false; }
+  finally{ late = true; }
+}
+function addLog(kind, text){
+  const ref = db.collection('logs').doc();
+  return run(()=>ref.set({at:Date.now(), by:me?.email||null, byName:me?.displayName||me?.email||null, kind, text}));
+}
+function bookingSummary(b){
+  const car = cars.find(c=>c.id===b.carId);
+  return `${b.customerName} (${b.customerPhone}) · ${carLabel(car)} · ${fmtDT(b.pickup)} → ${fmtDT(b.returnDate)} · ${money(b.price)||'ไม่ระบุราคา'} · ${b.status}`;
+}
+function diffText(old, nu, fields){
+  const out = [];
+  for(const [k,label,fmt] of fields){
+    const a = old[k] ?? '', b = nu[k] ?? '';
+    if(String(a)!==String(b)) out.push(`${label}: ${fmt?fmt(a):(a||'-')} → ${fmt?fmt(b):(b||'-')}`);
+  }
+  return out.join('; ');
+}
+
+// ---------- booking modal ----------
+function openModal(id){ $(id).hidden=false; }
+function closeModals(){ document.querySelectorAll('.overlay').forEach(o=>o.hidden=true); }
+document.addEventListener('click', e=>{
+  if(e.target.closest('[data-close]') || e.target.classList.contains('overlay')) closeModals();
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModals(); });
+
+function localNow(){ const n=new Date(); n.setMinutes(n.getMinutes()-n.getTimezoneOffset()); return n.toISOString().slice(0,16); }
+function openBooking(id){
+  if(!cars.length){ toast('เพิ่มรถเข้าในร้านก่อน แล้วค่อยสร้างคิวเช่า'); switchTab('cars'); openCar(); return; }
+  const sel = $('#b-car');
+  sel.innerHTML = cars.map(c=>`<option value="${c.id}">${esc(c.model)} (${esc(c.plate)}) · ${esc(CATS[c.category]||'อื่นๆ')}</option>`).join('');
+  $('#form-booking').reset();
+  editing.booking = id || null;
+  const b = id && bookings.find(x=>x.id===id);
+  $('#mb-title').textContent = b ? 'แก้ไขคิวเช่า' : 'เพิ่มคิวเช่ารถใหม่';
+  if(b){
+    if(!cars.find(c=>c.id===b.carId)) sel.insertAdjacentHTML('afterbegin',`<option value="${esc(b.carId)}">${esc(b.carModel||'รถที่ถูกลบ')} (${esc(b.carPlate||'-')})</option>`);
+    sel.value=b.carId; $('#b-name').value=b.customerName; $('#b-phone').value=b.customerPhone;
+    $('#b-pickup').value=b.pickup; $('#b-return').value=b.returnDate; $('#b-status').value=b.status;
+    $('#b-price').value=b.price ?? ''; $('#b-notes').value=b.notes||'';
+  } else {
+    $('#b-pickup').value = localNow(); $('#b-status').value='จองแล้ว';
+  }
+  checkOverlap(); openModal('#m-booking'); $('#b-name').focus();
+}
+function checkOverlap(){
+  const carId=$('#b-car').value, p=$('#b-pickup').value, r=$('#b-return').value, w=$('#b-warn');
+  let msg='';
+  if(p && r && r<=p) msg='เวลาคืนรถต้องอยู่หลังเวลารับรถ';
+  else if(p && r){
+    const hit = bookings.find(b=>b.id!==editing.booking && b.carId===carId && (b.status==='จองแล้ว'||b.status==='กำลังเช่า') && p < b.returnDate && r > b.pickup);
+    if(hit) msg=`รถคันนี้มีคิวของ ${hit.customerName} ช่วง ${fmtDT(hit.pickup)} – ${fmtDT(hit.returnDate)} ซ้อนกันอยู่ (ยังบันทึกได้ ถ้าตั้งใจ)`;
+  }
+  w.textContent=msg; w.hidden=!msg;
+}
+['#b-car','#b-pickup','#b-return'].forEach(s=>$(s).addEventListener('input',checkOverlap));
+
+$('#form-booking').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const p=$('#b-pickup').value, r=$('#b-return').value;
+  if(r<=p){ checkOverlap(); return; }
+  const car = cars.find(c=>c.id===$('#b-car').value);
+  const nu = {
+    carId:$('#b-car').value, customerName:$('#b-name').value.trim(), customerPhone:$('#b-phone').value.trim(),
+    pickup:p, returnDate:r, status:$('#b-status').value,
+    price: $('#b-price').value==='' ? '' : Number($('#b-price').value),
+    notes:$('#b-notes').value.trim(),
+    carModel: car?.model || '', carPlate: car?.plate || '', carCategory: car?.category || 'Other'
+  };
+  const btn=$('#b-submit'); btn.disabled=true;
+  const old = editing.booking && bookings.find(x=>x.id===editing.booking);
+  const ref = old ? db.collection('bookings').doc(old.id) : db.collection('bookings').doc();
+  const body = {...nu, createdAt: old?.createdAt || Date.now(), updatedAt: Date.now()};
+  const ok = await run(()=>ref.set(body));
+  btn.disabled=false;
+  if(!ok) return;
+  closeModals();
+  if(old){
+    const d = diffText(old, nu, [
+      ['carId','รถ', v=>carLabel(cars.find(c=>c.id===v))],['customerName','ชื่อผู้เช่า'],['customerPhone','เบอร์'],
+      ['pickup','รับรถ',fmtDT],['returnDate','คืนรถ',fmtDT],['status','สถานะ'],['price','ค่าเช่า',v=>money(v)||'-'],['notes','หมายเหตุ']]);
+    if(d) addLog('edit', `แก้ไขคิวของ ${nu.customerName} (${carLabel(car)}) · ${d}`);
+    toast('บันทึกการแก้ไขแล้ว');
+  } else {
+    addLog('add', `เพิ่มคิวเช่า: ${bookingSummary(nu)}${nu.notes?' · หมายเหตุ: '+nu.notes:''}`);
+    toast('เพิ่มคิวเช่าแล้ว');
+  }
+});
+
+// ---------- car modal ----------
+function openCar(id){
+  $('#form-car').reset(); editing.car = id||null;
+  const c = id && cars.find(x=>x.id===id);
+  $('#mc-title').textContent = c ? 'แก้ไขข้อมูลรถ' : 'เพิ่มรถใหม่เข้าในร้าน';
+  if(c){ $('#c-model').value=c.model; $('#c-plate').value=c.plate; $('#c-cat').value=c.category; $('#c-color').value=c.color||''; $('#c-notes').value=c.notes||''; }
+  openModal('#m-car'); $('#c-model').focus();
+}
+$('#form-car').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nu = {model:$('#c-model').value.trim(), plate:$('#c-plate').value.trim(), category:$('#c-cat').value, color:$('#c-color').value.trim(), notes:$('#c-notes').value.trim()};
+  const old = editing.car && cars.find(x=>x.id===editing.car);
+  const ref = old ? db.collection('cars').doc(old.id) : db.collection('cars').doc();
+  const btn=$('#c-submit'); btn.disabled=true;
+  const ok = await run(()=>ref.set({...nu, createdAt: old?.createdAt || Date.now(), updatedAt: Date.now()}));
+  btn.disabled=false;
+  if(!ok) return;
+  closeModals();
+  if(old){
+    const d = diffText(old, nu, [['model','รุ่น'],['plate','ทะเบียน'],['category','ประเภท',v=>CATS[v]||v],['color','สี'],['notes','หมายเหตุ']]);
+    if(d) addLog('edit', `แก้ไขรถ ${carLabel(old)} · ${d}`);
+    toast('บันทึกข้อมูลรถแล้ว');
+  } else {
+    addLog('add', `เพิ่มรถเข้าร้าน: ${nu.model} [${nu.plate}] · ${CATS[nu.category]}${nu.color?' · สี'+nu.color:''}${nu.notes?' · '+nu.notes:''}`);
+    toast('เพิ่มรถแล้ว');
+  }
+});
+
+// ---------- delete confirm ----------
+let pendingDelete = null;
+function askDelete(text, fn){ $('#cf-text').textContent=text; pendingDelete=fn; openModal('#m-confirm'); }
+$('#cf-ok').addEventListener('click', async ()=>{ const fn=pendingDelete; pendingDelete=null; closeModals(); if(fn) await fn(); });
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-edit-booking],[data-del-booking],[data-edit-car],[data-del-car]');
+  if(!t) return;
+  if(t.dataset.editBooking) openBooking(t.dataset.editBooking);
+  if(t.dataset.editCar) openCar(t.dataset.editCar);
+  if(t.dataset.delBooking){
+    const b = bookings.find(x=>x.id===t.dataset.delBooking); if(!b) return;
+    askDelete(`ลบคิวของ ${b.customerName} ใช่ไหม? ข้อความประวัติจะยังเก็บไว้`, async ()=>{
+      if(await run(()=>db.collection('bookings').doc(b.id).delete())){ addLog('del', `ลบคิวเช่า: ${bookingSummary(b)}`); toast('ลบคิวแล้ว'); }
+    });
+  }
+  if(t.dataset.delCar){
+    const c = cars.find(x=>x.id===t.dataset.delCar); if(!c) return;
+    const n = bookings.filter(b=>b.carId===c.id).length;
+    askDelete(`ลบ ${c.model} [${c.plate}] ออกจากร้านใช่ไหม?${n?` คิวเดิม ${n} รายการจะยังอยู่และแสดงชื่อรถเดิม`:''}`, async ()=>{
+      if(await run(()=>db.collection('cars').doc(c.id).delete())){ addLog('del', `ลบรถออกจากร้าน: ${carLabel(c)}`); toast('ลบรถแล้ว'); }
+    });
+  }
+});
+
+// ---------- tabs & filters ----------
+function switchTab(t){
+  tab=t;
+  ['bookings','cars','history'].forEach(k=>{
+    $('#view-'+k).hidden = k!==t; $('#view-'+k).style.display = k===t?'flex':'none';
+    $('#tab-'+k).setAttribute('aria-selected', String(k===t));
+  });
+  try{ localStorage.setItem('crm-tab',t); }catch{}
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+$('#btn-add-booking').addEventListener('click',()=>openBooking());
+$('#btn-add-car').addEventListener('click',()=>openCar());
+['#f-search','#f-cat','#f-status','#f-date'].forEach(s=>$(s).addEventListener('input',renderBookings));
+$('#f-reset').addEventListener('click',()=>{ $('#f-search').value=''; $('#f-cat').value='ALL'; $('#f-status').value='ALL'; $('#f-date').value=''; renderBookings(); });
+$('#h-search').addEventListener('input',renderLedger);
+
+// fill selects
+for(const [k,v] of Object.entries(CATS)){ $('#f-cat').insertAdjacentHTML('beforeend',`<option value="${k}">${v}</option>`); $('#c-cat').insertAdjacentHTML('beforeend',`<option value="${k}">${v}</option>`); }
+for(const [k,v] of Object.entries(STATUS)){ $('#f-status').insertAdjacentHTML('beforeend',`<option value="${k}">${v.label}</option>`); $('#b-status').insertAdjacentHTML('beforeend',`<option value="${k}">${v.label}</option>`); }
+
+// ---------- history export ----------
+async function ledgerText(){
+  const list = filteredLogs();
+  return `ประวัติระบบจัดการคิวเช่ารถ (ส่งออกเมื่อ ${fmtStamp(Date.now())})\n` + '-'.repeat(40) + '\n' + [...list].reverse().map(logLine).join('\n') + '\n';
+}
+$('#h-copy').addEventListener('click', async ()=>{
+  const text = await ledgerText();
+  try{ await navigator.clipboard.writeText(text); toast('คัดลอกประวัติแล้ว'); }
+  catch{ toast('คัดลอกไม่ได้ในหน้านี้ ลองใช้ปุ่มบันทึกไฟล์ .txt'); }
+});
+$('#h-save').addEventListener('click', async ()=>{
+  const d = new Date(); const stamp = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const url = URL.createObjectURL(new Blob(['\ufeff'+await ledgerText()],{type:'text/plain;charset=utf-8'}));
+  const a = Object.assign(document.createElement('a'),{href:url,download:`car-rental-history-${stamp}.txt`});
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+
+// ---------- boot ----------
+try{ const t=localStorage.getItem('crm-tab'); if(t && $('#view-'+t)) switchTab(t); else switchTab('bookings'); }catch{ switchTab('bookings'); }
+render();
+
+// ---------- Firebase boot ----------
+function wrapDb(){
+  return { collection: name => ({ doc: id => {
+    const r = id ? doc(store, name, id) : doc(collection(store, name));
+    return { id: r.id, set: d => setDoc(r, d), delete: () => deleteDoc(r) };
+  }})};
+}
+function subscribe(){
+  const fresh = {cars:false,bookings:false,logs:false};
+  const status = ()=>{
+    if(!navigator.onLine) setConn('slow','ออฟไลน์ — แก้ไขได้ตามปกติ จะซิงค์เมื่อกลับมาออนไลน์');
+    else if(fresh.cars && fresh.bookings && fresh.logs) setConn('live','ซิงค์ทุกเครื่องแบบเรียลไทม์');
+    else setConn('slow','กำลังซิงค์ข้อมูล…');
+  };
+  const mark = (k,s)=>{ ready[k]=true; fresh[k]=!s.metadata.fromCache; status(); render(); };
+  const onErr = e=>{ setConn('', e?.code==='permission-denied' ? 'ไม่มีสิทธิ์อ่านข้อมูล — ตรวจกฎ Firestore' : 'การเชื่อมต่อหลุด — รีเฟรชหน้าเพื่อเชื่อมต่อใหม่'); };
+  const opt = {includeMetadataChanges:true};
+  unsubs.push(onSnapshot(collection(store,'cars'), opt, s=>{ cars=s.docs.map(d=>({id:d.id,...d.data()})); mark('cars',s); }, onErr));
+  unsubs.push(onSnapshot(collection(store,'bookings'), opt, s=>{ bookings=s.docs.map(d=>({id:d.id,...d.data()})); mark('bookings',s); }, onErr));
+  unsubs.push(onSnapshot(query(collection(store,'logs'), orderBy('at','desc'), limit(1000)), opt, s=>{ logs=s.docs.map(d=>({id:d.id,...d.data()})); mark('logs',s); }, onErr));
+  addEventListener('online',status); addEventListener('offline',status);
+}
+function stop(){ while(unsubs.length) unsubs.pop()(); cars=[]; bookings=[]; logs=[]; ready.cars=ready.bookings=ready.logs=false; render(); }
+
+const authMsg = c => ({'auth/invalid-credential':'อีเมลหรือรหัสผ่านไม่ถูกต้อง','auth/wrong-password':'อีเมลหรือรหัสผ่านไม่ถูกต้อง','auth/user-not-found':'ไม่พบบัญชีนี้ ให้เจ้าของร้านเพิ่มใน Firebase ก่อน','auth/too-many-requests':'ลองผิดหลายครั้งเกินไป รอสักครู่แล้วลองใหม่','auth/network-request-failed':'เชื่อมต่ออินเทอร์เน็ตไม่ได้'}[c] || 'เข้าสู่ระบบไม่สำเร็จ ('+c+')');
+
+(function boot(){
+  if(firebaseConfig.apiKey.startsWith('YOUR_')){
+    setConn('','ยังไม่ได้ตั้งค่า Firebase'); $('#setup-msg').hidden=false; $('#login').hidden=false;
+    $('#l-submit').disabled=true; return;
+  }
+  const app = initializeApp(firebaseConfig);
+  store = initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})});
+  auth = getAuth(app);
+  db = wrapDb();
+  onAuthStateChanged(auth, u=>{
+    me = u;
+    $('#login').hidden = !!u; $('#userchip').hidden = !u;
+    if(u){ $('#user-email').textContent = u.email; if(!unsubs.length) subscribe(); }
+    else { stop(); setConn('','ยังไม่ได้เข้าสู่ระบบ'); setTimeout(()=>$('#l-email').focus(),50); }
+  });
+  $('#form-login').addEventListener('submit', async e=>{
+    e.preventDefault(); const err=$('#l-err'); err.hidden=true; $('#l-submit').disabled=true;
+    try{ await signInWithEmailAndPassword(auth, $('#l-email').value.trim(), $('#l-pass').value); $('#form-login').reset(); }
+    catch(x){ err.textContent=authMsg(x.code); err.hidden=false; }
+    finally{ $('#l-submit').disabled=false; }
+  });
+  $('#btn-logout').addEventListener('click', ()=>signOut(auth));
+})();
+</script>
 </body>
 </html>
