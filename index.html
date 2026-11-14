@@ -105,7 +105,7 @@ body{overflow-x:clip}
   .toolbar .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .toolbar .filters .search,.toolbar .filters .daterange{grid-column:1/-1;max-width:none}
   .toolbar .filters select{width:100%}
-  #f-reset{grid-column:1/-1}
+  #f-reset,#s-copy{grid-column:1/-1}
   #btn-add-booking,#btn-add-car{width:100%;min-height:44px}
   .chip{flex:1 0 auto}
   .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
@@ -200,6 +200,64 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
 .login .modal{max-width:400px}
 .login .err{color:var(--bad);font-size:13px;margin:0}
 .setup{font-size:14px;color:var(--muted)} .setup code{font-family:var(--f-mono);background:var(--surface-2);padding:1px 6px;border-radius:5px}
+
+/* ===== ระบบคำนวณ / สรุปยอด ===== */
+.inl{display:grid;grid-template-columns:1fr auto;gap:6px}
+.inl select.field{width:auto}
+.subhead{font-family:var(--f-display);font-size:14px;font-weight:600;color:var(--fg);margin:0}
+.ownbox{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:10px}
+@media (max-width:560px){.row3{grid-template-columns:1fr 1fr}.row3>:last-child{grid-column:1/-1}}
+.lines{display:flex;flex-direction:column;gap:8px}
+.lines-head{display:flex;justify-content:space-between;align-items:center}
+.line{display:grid;grid-template-columns:1fr 110px auto;gap:6px;align-items:center}
+.line.exp{grid-template-columns:1fr 100px 130px auto}
+@media (max-width:560px){.line,.line.exp{grid-template-columns:1fr 1fr auto}.line .lbl-in{grid-column:1/-1}}
+.btn.sm{padding:6px 12px;font-size:13px}
+.sumbox{border:1px solid var(--line-2);border-radius:12px;overflow:hidden}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;font-size:14px;border-top:1px solid var(--line)}
+.kv:first-child{border-top:0}
+.kv b{font-family:var(--f-display);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv .minus{color:var(--bad)} .kv .plus{color:var(--ok)}
+.kv.sub{font-size:13px;color:var(--muted);padding-top:4px;border-top:0}
+.payout{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line-2)}
+.payout>div{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.payout>div+div{border-left:1px solid var(--line-2)}
+.payout .who-l{font-size:12px;color:var(--muted)}
+.payout .amt{font-family:var(--f-display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+.payout .shop .amt{color:var(--accent)} .payout .owner .amt{color:var(--ok)}
+.payout .calc{font-size:11px;color:var(--faint)}
+.payout.single{grid-template-columns:1fr}
+.roundbtn{align-self:flex-start;border:1px dashed var(--line-2);background:var(--surface);color:var(--muted);border-radius:10px;padding:9px 14px;cursor:pointer;font-family:var(--f-display);font-size:14px;display:inline-flex;gap:8px;align-items:center;min-height:42px}
+.roundbtn[aria-pressed="true"]{border-style:solid;border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.roundbtn .box{width:18px;height:18px;border-radius:5px;border:2px solid currentColor;display:grid;place-items:center;font-size:12px;line-height:1}
+.settled{font-size:12px;background:var(--ok-soft);color:var(--fg);border-radius:9px;padding:7px 10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.settled b{font-family:var(--f-display);font-weight:500}
+.btn.settle{background:var(--ok);color:#fff;width:100%}
+.ownerline{font-size:12px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:700px){.tiles{grid-template-columns:1fr 1fr}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.tile span{font-size:12px;color:var(--muted)}
+.tile b{display:block;font-family:var(--f-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile.shop b{color:var(--accent)} .tile.owner b{color:var(--ok)}
+.carsum{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.carsum summary{list-style:none;cursor:pointer;padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+.carsum summary::-webkit-details-marker{display:none}
+.carsum summary h3{font-size:15px}
+.carsum .nums{display:flex;gap:14px;font-size:13px;color:var(--muted);flex-wrap:wrap;grid-column:1/-1}
+.carsum .nums b{font-family:var(--f-display);font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.carsum .nums .s b{color:var(--accent)} .carsum .nums .o b{color:var(--ok)}
+.carsum ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.carsum li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 16px;border-top:1px solid var(--line);font-size:13px}
+.carsum li:first-child{border-top:0}
+.carsum li .m{color:var(--muted);font-size:12px}
+.carsum li button{grid-row:span 2;align-self:center}
+.sumlist{display:flex;flex-direction:column;gap:10px}
+.pending{background:var(--warn-soft);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.pending .it{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.owners{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.owners h3{font-size:15px;padding:12px 16px 4px}
 </style>
 </head>
 <body>
@@ -228,6 +286,8 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
       <svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>คิวจอง/เช่ารถ <span class="n" id="n-bookings"></span></button>
     <button class="tab" role="tab" id="tab-cars" data-tab="cars" aria-selected="false">
       <svg class="i" viewBox="0 0 24 24"><path d="M5 17h14M3 13l2-6h14l2 6v4H3z"/></svg>รถในร้าน <span class="n" id="n-cars"></span></button>
+    <button class="tab" role="tab" id="tab-summary" data-tab="summary" aria-selected="false">
+      <svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg>สรุปยอด <span class="n" id="n-pending"></span></button>
     <button class="tab" role="tab" id="tab-history" data-tab="history" aria-selected="false">
       <svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ประวัติการแก้ไข <span class="n" id="n-logs"></span></button>
   </div>
@@ -270,6 +330,28 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
     <div class="grid" id="cars"></div>
   </section>
 
+  <!-- SUMMARY -->
+  <section id="view-summary" hidden style="flex-direction:column;gap:16px">
+    <div class="toolbar">
+      <div><h2>สรุปยอดทุกคัน</h2><p class="sub">นับเฉพาะรอบที่สรุปยอดแล้ว ตามวันคืนรถ</p></div>
+      <div class="filters">
+        <div class="daterange">
+          <label class="dr"><span>ตั้งแต่</span><input class="field" id="s-from" type="date" aria-label="ตั้งแต่วันที่"></label>
+          <label class="dr"><span>ถึง</span><input class="field" id="s-to" type="date" aria-label="ถึงวันที่"></label>
+        </div>
+        <button class="btn ghost" id="s-copy"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>คัดลอกสรุป</button>
+      </div>
+    </div>
+    <div class="quick" id="squick">
+      <span class="lbl">ช่วง:</span>
+      <button class="chip" data-srange="today" aria-pressed="false">วันนี้</button>
+      <button class="chip" data-srange="thisMonth" aria-pressed="false">เดือนนี้</button>
+      <button class="chip" data-srange="lastMonth" aria-pressed="false">เดือนที่แล้ว</button>
+      <button class="chip" data-srange="all" aria-pressed="true">ทั้งหมด</button>
+    </div>
+    <div id="summary" class="sumlist"></div>
+  </section>
+
   <!-- HISTORY -->
   <section id="view-history" hidden style="flex-direction:column;gap:16px">
     <div class="toolbar">
@@ -306,6 +388,7 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
         <label class="f">สถานะคิว <span class="req">*</span><select class="field" id="b-status"></select></label>
         <label class="f">ค่าเช่ารวม (บาท)<input class="field" id="b-price" type="number" min="0" inputmode="numeric" placeholder="เช่น 1500"></label>
       </div>
+      <p class="hint" id="b-suggest" hidden></p>
       <label class="f">หมายเหตุ<textarea class="field" id="b-notes" rows="3" placeholder="เงินมัดจำ, รอยขีดข่วนเดิม, สถานที่ส่งรถ"></textarea></label>
       <div class="actions"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button type="submit" class="btn primary" id="b-submit">บันทึกคิวเช่า</button></div>
     </form>
@@ -314,7 +397,7 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
 
 <!-- car modal -->
 <div class="overlay" id="m-car" hidden>
-  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="mc-title">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mc-title">
     <header><h3 id="mc-title">เพิ่มรถใหม่เข้าในร้าน</h3><button class="icon-btn" data-close aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
     <form id="form-car">
       <label class="f">ยี่ห้อและรุ่นรถ <span class="req">*</span><input class="field" id="c-model" required placeholder="เช่น Toyota Yaris Ativ"></label>
@@ -323,8 +406,67 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
         <label class="f">สีของรถ<input class="field" id="c-color" placeholder="เช่น ขาว"></label>
       </div>
       <label class="f">ประเภทรถ <span class="req">*</span><select class="field" id="c-cat"></select></label>
+      <div class="row">
+        <label class="f">ราคาเช่าต่อวัน (บาท)<input class="field" id="c-rate" type="number" min="0" inputmode="numeric" placeholder="เช่น 450"></label>
+        <label class="f">รถของใคร<select class="field" id="c-own"><option value="shop">รถของร้าน</option><option value="consign">รถฝากปล่อยเช่า (มีเจ้าของ)</option></select></label>
+      </div>
+      <div class="ownbox" id="c-owner-box" hidden>
+        <div class="row">
+          <label class="f">ชื่อเจ้าของรถ <span class="req">*</span><input class="field" id="c-owner" placeholder="คุณเอ"></label>
+          <label class="f">เบอร์เจ้าของรถ<input class="field" id="c-owner-phone" type="tel" placeholder="08x-xxx-xxxx"></label>
+        </div>
+        <p class="subhead">ค่าหัวคิวร้าน (หักจากเจ้าของรถ)</p>
+        <div class="row">
+          <label class="f">เช่า 1–2 วัน<span class="inl"><input class="field" id="c-fee1" type="number" min="0" inputmode="numeric" placeholder="0"><select class="field" id="c-fee1u"><option value="trip">บาท/รอบ</option><option value="day">บาท/วัน</option></select></span></label>
+          <label class="f">เช่า 3 วันขึ้นไป<span class="inl"><input class="field" id="c-fee2" type="number" min="0" inputmode="numeric" placeholder="0"><select class="field" id="c-fee2u"><option value="trip">บาท/รอบ</option><option value="day">บาท/วัน</option></select></span></label>
+        </div>
+        <p class="hint">แก้ตัวเลขได้อีกครั้งตอนสรุปยอดแต่ละรอบ</p>
+      </div>
       <label class="f">หมายเหตุประจำรถ<textarea class="field" id="c-notes" rows="2" placeholder="ประกันชั้น 1, ห้ามสูบบุหรี่ในรถ"></textarea></label>
       <div class="actions"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button type="submit" class="btn primary" id="c-submit">บันทึกรถ</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- settle modal -->
+<div class="overlay" id="m-settle" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ms-title">
+    <header><h3 id="ms-title">สรุปยอดรอบเช่า</h3><button class="icon-btn" data-close aria-label="ปิด"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <form id="form-settle">
+      <div class="carbox" id="ms-head"></div>
+      <div class="row3">
+        <label class="f">จำนวนวันเช่า<input class="field" id="s-days" type="number" min="1" step="1" inputmode="numeric"></label>
+        <label class="f">ราคา/วัน (บาท)<input class="field" id="s-rate" type="number" min="0" inputmode="decimal"></label>
+        <label class="f">ค่าเช่ารวม (บาท)<input class="field" id="s-rent" type="number" min="0" inputmode="decimal"></label>
+      </div>
+      <p class="hint" id="s-rent-hint"></p>
+
+      <div class="lines">
+        <div class="lines-head"><p class="subhead">รายรับอื่น <span class="meta">เช่น ค่าส่งรถ ค่าเสียหาย</span></p><button type="button" class="btn ghost sm" id="s-add-extra">+ เพิ่ม</button></div>
+        <div id="s-extras" class="lines"></div>
+      </div>
+
+      <div class="lines">
+        <div class="lines-head"><p class="subhead">ค่าใช้จ่ายรอบนี้ <span class="meta">น้ำมัน ล้างรถ ซ่อม</span></p><button type="button" class="btn ghost sm" id="s-add-exp">+ เพิ่ม</button></div>
+        <div id="s-exps" class="lines"></div>
+      </div>
+
+      <div class="ownbox" id="s-fee-box">
+        <p class="subhead">ค่าหัวคิวร้าน <span class="meta" id="s-tier"></span></p>
+        <div class="row">
+          <label class="f">อัตราหัวคิว<span class="inl"><input class="field" id="s-fee" type="number" min="0" inputmode="decimal"><select class="field" id="s-feeu"><option value="trip">บาท/รอบ</option><option value="day">บาท/วัน</option></select></span></label>
+          <p class="hint" style="align-self:end" id="s-fee-hint"></p>
+        </div>
+      </div>
+
+      <button type="button" class="roundbtn" id="s-round" aria-pressed="false"><span class="box"></span>ปัดเศษขึ้นหลักร้อย</button>
+
+      <div class="sumbox" id="s-result"></div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="s-clear" hidden>ล้างสรุปยอด</button>
+        <button type="button" class="btn ghost" id="s-copy-one">คัดลอกข้อความ</button>
+        <button type="submit" class="btn primary" id="s-submit">บันทึกสรุปยอด</button>
+      </div>
     </form>
   </div>
 </div>
@@ -368,7 +510,7 @@ const firebaseConfig = {
 // ==========================================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const CATS = {Sedan:'รถเก๋ง / Sedan',SUV:'SUV / MPV',Pickup:'รถกระบะ',Van:'รถตู้',Motorcycle:'มอเตอร์ไซค์',Other:'อื่นๆ'};
 const STATUS = {
@@ -382,6 +524,7 @@ const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const ICON = {
   edit:'<svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
   del:'<svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  calc:'<svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg>',
   phone:'<svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>'
 };
 
@@ -426,7 +569,7 @@ function render(){
   $('#n-cars').textContent = cars.length || '';
   $('#n-logs').textContent = logs.length || '';
   document.querySelectorAll('.w-only').forEach(el=>el.hidden=!canWrite);
-  renderBookings(); renderCars(); renderLedger();
+  renderBookings(); renderCars(); renderLedger(); renderSummary();
 }
 
 function renderBookings(){
@@ -461,12 +604,14 @@ function renderBookings(){
     return `<article class="card ${st.card}">
       ${w?`<div class="when ${w.cls}">${esc(w.text)}</div>`:''}
       <div class="card-top"><span class="pill ${st.cls}">${esc(st.label)}</span>
-        ${canWrite?`<div><button class="icon-btn" data-edit-booking="${b.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-booking="${b.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
+        ${canWrite?`<div>${b.status!=='ยกเลิก'?`<button class="icon-btn" data-settle="${b.id}" title="สรุปยอด" aria-label="สรุปยอด">${ICON.calc}</button>`:''}<button class="icon-btn" data-edit-booking="${b.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-booking="${b.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
       <div class="carbox"><div class="cat">${esc(cat)}</div><h3>${esc(car?.model || b.carModel || 'รถที่ถูกลบจากระบบ')}</h3><span class="plate">${esc(car?.plate || b.carPlate || '-')}</span></div>
       <div class="who"><b>${esc(b.customerName)}</b><span class="tel">${ICON.phone}<a href="tel:${esc((b.customerPhone||'').replace(/[^\d+]/g,''))}">${esc(b.customerPhone)}</a></span></div>
       <dl class="dates"><dt>รับรถ</dt><dd>${fmtDT(b.pickup)}</dd><dt>คืนรถ</dt><dd>${fmtDT(b.returnDate)}</dd><span class="dur">${duration(b.pickup,b.returnDate)}</span></dl>
       ${b.notes?`<div class="note">${esc(b.notes)}</div>`:''}
-      <div class="card-foot"><span>ค่าเช่ารวม</span><span class="price">${money(b.price)||'<span class="meta">ไม่ระบุ</span>'}</span></div>
+      ${b.settlement?`<div class="settled"><span>✓ สรุปยอดแล้ว</span><span>${b.settlement.ownership==='consign'?`${esc(b.settlement.ownerName||'เจ้าของ')} <b>${fmtN(b.settlement.ownerNet)}</b> · `:''}ร้าน <b>${fmtN(b.settlement.shopNet)}</b></span></div>`:''}
+      ${!b.settlement && b.status==='คืนแล้ว' && canWrite?`<button class="btn settle" data-settle="${b.id}">${ICON.calc}สรุปยอดรอบนี้</button>`:''}
+      <div class="card-foot"><span>${b.settlement?'รายรับรอบนี้':'ค่าเช่ารวม'}</span><span class="price">${b.settlement?baht(b.settlement.total):(money(b.price)||'<span class="meta">ไม่ระบุ</span>')}</span></div>
     </article>`;
   }).join('');
 }
@@ -548,7 +693,9 @@ function renderCars(){
       <div class="card-top"><span class="cat">${esc(CATS[c.category]||'อื่นๆ')}</span>
         ${canWrite?`<div><button class="icon-btn" data-edit-car="${c.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-car="${c.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
       <div><h3>${esc(c.model)}</h3><span class="plate">${esc(c.plate)}</span></div>
-      ${c.color?`<div class="meta">สี: ${esc(c.color)}</div>`:''}
+      ${c.color||(c.rate!==''&&c.rate!=null)?`<div class="meta">${[c.color?'สี: '+esc(c.color):'', c.rate!==''&&c.rate!=null?'ค่าเช่า '+esc(money(c.rate))+'/วัน':''].filter(Boolean).join(' · ')}</div>`:''}
+      ${c.ownership==='consign'?`<div class="ownerline">รถฝากของ <b>${esc(c.ownerName)}</b>${c.ownerPhone?' · '+esc(c.ownerPhone):''}<br>หัวคิว ${esc(feeDesc(c))}</div>`:'<div class="ownerline">รถของร้าน</div>'}
+      ${(()=>{ const ss=mine.filter(b=>b.settlement); return ss.length?`<div class="meta">สรุปแล้ว ${ss.length} รอบ · ร้านได้รวม ${fmtN(sum(ss,b=>b.settlement.shopNet))}${c.ownership==='consign'?' · เจ้าของได้รวม '+fmtN(sum(ss,b=>b.settlement.ownerNet)):''}</div>`:''; })()}
       ${c.notes?`<div class="note plain">${esc(c.notes)}</div>`:''}
       <div class="card-foot"><span>${now?`<span class="pill s-active">เช่าโดย ${esc(now.customerName)}</span>`:'<span class="pill s-returned">ว่าง</span>'}</span><span>${mine.length} คิว</span></div>
     </article>`;
@@ -651,7 +798,16 @@ function checkOverlap(){
     if(hit) msg=`รถคันนี้มีคิวของ ${hit.customerName} ช่วง ${fmtDT(hit.pickup)} – ${fmtDT(hit.returnDate)} ซ้อนกันอยู่ (ยังบันทึกได้ ถ้าตั้งใจ)`;
   }
   w.textContent=msg; w.hidden=!msg;
+  // ราคาแนะนำตามราคา/วันของรถ
+  const car = cars.find(c=>c.id===carId), sg=$('#b-suggest');
+  if(car && car.rate!=='' && car.rate!=null && p && r && r>p){
+    const d = daysBetween(p, r), v = num(car.rate)*d;
+    sg.innerHTML = `ราคาตามรถ: ${d} วัน × ${fmtN(car.rate)} = <b>${fmtN(v)} บาท</b> ${String($('#b-price').value)===String(v)?'✓':`<button type="button" class="btn ghost sm" id="b-use" data-v="${v}">ใช้ราคานี้</button>`}`;
+    sg.hidden=false;
+  } else sg.hidden=true;
 }
+document.addEventListener('click', e=>{ const u=e.target.closest('#b-use'); if(u){ $('#b-price').value=u.dataset.v; checkOverlap(); } });
+$('#b-price').addEventListener('input', checkOverlap);
 ['#b-car','#b-pickup','#b-return'].forEach(s=>$(s).addEventListener('input',checkOverlap));
 
 $('#form-booking').addEventListener('submit', async e=>{
@@ -684,6 +840,10 @@ $('#form-booking').addEventListener('submit', async e=>{
     addLog('add', `เพิ่มคิวเช่า: ${bookingSummary(nu)}${nu.notes?' · หมายเหตุ: '+nu.notes:''}`);
     toast('เพิ่มคิวเช่าแล้ว');
   }
+  // จบรอบเช่า → เปิดหน้าต่างสรุปยอดให้เลย
+  if(nu.status==='คืนแล้ว' && old?.status!=='คืนแล้ว' && !old?.settlement){
+    setTimeout(()=>openSettle(ref.id, {...body, id:ref.id}), 200);
+  }
 });
 
 // ---------- car modal ----------
@@ -691,12 +851,23 @@ function openCar(id){
   $('#form-car').reset(); editing.car = id||null;
   const c = id && cars.find(x=>x.id===id);
   $('#mc-title').textContent = c ? 'แก้ไขข้อมูลรถ' : 'เพิ่มรถใหม่เข้าในร้าน';
-  if(c){ $('#c-model').value=c.model; $('#c-plate').value=c.plate; $('#c-cat').value=c.category; $('#c-color').value=c.color||''; $('#c-notes').value=c.notes||''; }
+  if(c){ $('#c-model').value=c.model; $('#c-plate').value=c.plate; $('#c-cat').value=c.category; $('#c-color').value=c.color||''; $('#c-notes').value=c.notes||'';
+    $('#c-rate').value=c.rate ?? ''; $('#c-own').value=c.ownership||'shop'; $('#c-owner').value=c.ownerName||''; $('#c-owner-phone').value=c.ownerPhone||'';
+    $('#c-fee1').value=c.fee1 ?? ''; $('#c-fee1u').value=c.fee1Unit||'trip'; $('#c-fee2').value=c.fee2 ?? ''; $('#c-fee2u').value=c.fee2Unit||'day'; }
+  else { $('#c-own').value='shop'; $('#c-fee1u').value='trip'; $('#c-fee2u').value='day'; }
+  syncOwnerBox();
   openModal('#m-car'); $('#c-model').focus();
 }
 $('#form-car').addEventListener('submit', async e=>{
   e.preventDefault();
-  const nu = {model:$('#c-model').value.trim(), plate:$('#c-plate').value.trim(), category:$('#c-cat').value, color:$('#c-color').value.trim(), notes:$('#c-notes').value.trim()};
+  const numOr = (s)=>{ const v=$(s).value; return v==='' ? '' : Number(v); };
+  const own = $('#c-own').value;
+  if(own==='consign' && !$('#c-owner').value.trim()){ toast('ใส่ชื่อเจ้าของรถด้วย'); $('#c-owner').focus(); return; }
+  const nu = {model:$('#c-model').value.trim(), plate:$('#c-plate').value.trim(), category:$('#c-cat').value, color:$('#c-color').value.trim(), notes:$('#c-notes').value.trim(),
+    rate:numOr('#c-rate'), ownership:own,
+    ownerName: own==='consign' ? $('#c-owner').value.trim() : '', ownerPhone: own==='consign' ? $('#c-owner-phone').value.trim() : '',
+    fee1: own==='consign' ? numOr('#c-fee1') : '', fee1Unit:$('#c-fee1u').value,
+    fee2: own==='consign' ? numOr('#c-fee2') : '', fee2Unit:$('#c-fee2u').value};
   const old = editing.car && cars.find(x=>x.id===editing.car);
   const ref = old ? db.collection('cars').doc(old.id) : db.collection('cars').doc();
   const btn=$('#c-submit'); btn.disabled=true;
@@ -705,14 +876,285 @@ $('#form-car').addEventListener('submit', async e=>{
   if(!ok) return;
   closeModals();
   if(old){
-    const d = diffText(old, nu, [['model','รุ่น'],['plate','ทะเบียน'],['category','ประเภท',v=>CATS[v]||v],['color','สี'],['notes','หมายเหตุ']]);
+    const d = diffText({ownership:'shop',fee1Unit:'trip',fee2Unit:'day',...old}, nu, [['model','รุ่น'],['plate','ทะเบียน'],['category','ประเภท',v=>CATS[v]||v],['color','สี'],['notes','หมายเหตุ'],
+      ['rate','ราคา/วัน',v=>money(v)||'-'],['ownership','เจ้าของ',v=>v==='consign'?'รถฝาก':'รถร้าน'],['ownerName','ชื่อเจ้าของ'],['ownerPhone','เบอร์เจ้าของ'],
+      ['fee1','หัวคิว 1–2 วัน',v=>money(v)||'-'],['fee1Unit','หน่วยหัวคิว 1–2 วัน',v=>UNIT[v]||v],['fee2','หัวคิว 3 วัน+',v=>money(v)||'-'],['fee2Unit','หน่วยหัวคิว 3 วัน+',v=>UNIT[v]||v]]);
     if(d) addLog('edit', `แก้ไขรถ ${carLabel(old)} · ${d}`);
     toast('บันทึกข้อมูลรถแล้ว');
   } else {
-    addLog('add', `เพิ่มรถเข้าร้าน: ${nu.model} [${nu.plate}] · ${CATS[nu.category]}${nu.color?' · สี'+nu.color:''}${nu.notes?' · '+nu.notes:''}`);
+    addLog('add', `เพิ่มรถเข้าร้าน: ${nu.model} [${nu.plate}] · ${CATS[nu.category]}${nu.color?' · สี'+nu.color:''}${nu.rate!==''?' · '+money(nu.rate)+'/วัน':''}${nu.ownership==='consign'?' · รถฝากของ '+nu.ownerName+' · หัวคิว '+feeDesc(nu):''}${nu.notes?' · '+nu.notes:''}`);
     toast('เพิ่มรถแล้ว');
   }
 });
+
+// =====================================================================
+// ---------- ระบบคำนวณ: รถฝาก / ค่าหัวคิว / สรุปยอดรอบเช่า ----------
+// =====================================================================
+const UNIT = {trip:'บาท/รอบ', day:'บาท/วัน'};
+const num = v => { const n = Number(v); return (v===''||v==null||isNaN(n)) ? 0 : n; };
+const fmtN = v => num(v).toLocaleString('th-TH',{maximumFractionDigits:2});
+const baht = v => fmtN(v) + ' ฿';
+const ceil100 = x => Math.ceil((num(x) - 1e-9) / 100) * 100;   // 1,350 → 1,400 · 1,400 → 1,400
+const sum = (arr, f) => arr.reduce((a, x) => a + num(f(x)), 0);
+function daysBetween(p, r){ const ms = new Date(r) - new Date(p); return ms > 0 ? Math.max(1, Math.ceil(ms / 864e5 - 1e-9)) : 1; }
+const tierOf = days => days <= 2 ? 1 : 2;
+function feeDesc(c){ return `1–2 วัน ${fmtN(c.fee1)} ${UNIT[c.fee1Unit||'trip']} · 3 วัน+ ${fmtN(c.fee2)} ${UNIT[c.fee2Unit||'day']}`; }
+function tierFee(car, days){
+  const t = tierOf(days);
+  return t===1 ? {fee: car?.fee1 ?? '', feeUnit: car?.fee1Unit || 'trip'} : {fee: car?.fee2 ?? '', feeUnit: car?.fee2Unit || 'day'};
+}
+
+function syncOwnerBox(){ $('#c-owner-box').hidden = $('#c-own').value !== 'consign'; }
+$('#c-own').addEventListener('change', syncOwnerBox);
+
+// สูตรหลัก — ใช้ทั้งหน้าต่างสรุป และหน้าสรุปยอดทุกคัน
+function calcSettle(S){
+  const days = Math.max(1, Math.round(num(S.days)) || 1);
+  const rent = num(S.rent);
+  const extra = sum(S.extras || [], x => x.amount);
+  const gross = rent + extra;
+  const total = S.round ? ceil100(gross) : gross;          // ปัดก่อนหักร้าน
+  const consign = S.ownership === 'consign';
+  const feeTotal = consign ? (S.feeUnit === 'day' ? num(S.fee) * days : num(S.fee)) : 0;
+  const exps = S.expenses || [];
+  const expAll = sum(exps, x => x.amount);
+  const expOwner = consign ? sum(exps.filter(x => x.payer === 'owner'), x => x.amount) : 0;
+  const expShop = expAll - expOwner;
+  const ownerNet = consign ? total - feeTotal - expOwner : 0;
+  const shopNet = consign ? feeTotal - expShop : total - expShop;
+  return {days, rent, extra, gross, total, roundDiff: total - gross, consign, feeTotal, expAll, expOwner, expShop, ownerNet, shopNet};
+}
+
+// ---------- หน้าต่างสรุปยอดรอบเช่า ----------
+let S = null, settleId = null, settleB = null;
+
+function openSettle(id, fallback){
+  const b = bookings.find(x => x.id === id) || fallback; if(!b) return;
+  const car = cars.find(c => c.id === b.carId) || null;
+  settleId = id; settleB = b;
+  const p = b.settlement;
+  if(p){
+    S = {days:p.days, rate:p.rate ?? '', rent:p.rent ?? '', extras:(p.extras||[]).map(x=>({...x})), expenses:(p.expenses||[]).map(x=>({...x})),
+         round:!!p.round, ownership:p.ownership||'shop', ownerName:p.ownerName||'', fee:p.fee ?? '', feeUnit:p.feeUnit||'trip',
+         rentTouched:true, feeTouched:true};
+  } else {
+    const days = daysBetween(b.pickup, b.returnDate);
+    const rate = car?.rate ?? '';
+    const hasPrice = b.price !== '' && b.price != null;
+    S = {days, rate, rent: hasPrice ? b.price : (rate !== '' ? num(rate) * days : ''), extras:[], expenses:[], round:false,
+         ownership: car?.ownership || 'shop', ownerName: car?.ownerName || '', ...tierFee(car, days),
+         rentTouched: hasPrice, feeTouched:false};
+  }
+  const setup = !car ? '<p class="hint" style="color:var(--warn)">รถคันนี้ถูกลบจากร้านแล้ว ใช้ข้อมูลที่บันทึกไว้</p>'
+    : (car.rate==null || car.rate==='') || (car.ownership==='consign' && (car.fee1==='' && car.fee2==='')) ? '<p class="hint" style="color:var(--warn)">ยังไม่ได้ตั้งราคา/ค่าหัวคิวของรถคันนี้ ตั้งได้ที่แท็บ "รถในร้าน" (หรือกรอกตรงนี้เฉพาะรอบนี้)</p>' : '';
+  $('#ms-head').innerHTML = `<div class="cat">${S.ownership==='consign' ? 'รถฝากของ ' + esc(S.ownerName || '-') : 'รถของร้าน'}</div>
+    <h3>${esc(car?.model || b.carModel || 'รถที่ถูกลบ')} <span class="plate">${esc(car?.plate || b.carPlate || '-')}</span></h3>
+    <div class="meta">${esc(b.customerName)} · ${fmtDT(b.pickup)} → ${fmtDT(b.returnDate)}</div>${setup}`;
+  $('#ms-title').textContent = p ? 'แก้ไขสรุปยอดรอบเช่า' : 'สรุปยอดรอบเช่า';
+  $('#s-days').value = S.days; $('#s-rate').value = S.rate; $('#s-rent').value = S.rent;
+  $('#s-fee').value = S.fee; $('#s-feeu').value = S.feeUnit;
+  $('#s-fee-box').hidden = S.ownership !== 'consign';
+  $('#s-clear').hidden = !p || !canWrite;
+  $('#s-submit').hidden = !canWrite;
+  renderLines(); renderResult();
+  openModal('#m-settle');
+}
+
+function renderLines(){
+  const del = i => `<button type="button" class="icon-btn del" data-rm="${i}" aria-label="ลบรายการ">${ICON.del}</button>`;
+  $('#s-extras').innerHTML = S.extras.map((x,i)=>`<div class="line" data-i="${i}">
+    <input class="field lbl-in" data-k="label" placeholder="รายการ" value="${esc(x.label)}">
+    <input class="field" data-k="amount" type="number" min="0" inputmode="decimal" placeholder="บาท" value="${esc(x.amount)}">${del(i)}</div>`).join('');
+  const consign = S.ownership === 'consign';
+  $('#s-exps').innerHTML = S.expenses.map((x,i)=>`<div class="line ${consign?'exp':''}" data-i="${i}">
+    <input class="field lbl-in" data-k="label" placeholder="รายการ" value="${esc(x.label)}">
+    <input class="field" data-k="amount" type="number" min="0" inputmode="decimal" placeholder="บาท" value="${esc(x.amount)}">
+    ${consign ? `<select class="field" data-k="payer"><option value="owner"${x.payer==='owner'?' selected':''}>หักจากเจ้าของ</option><option value="shop"${x.payer==='shop'?' selected':''}>ร้านออกเอง</option></select>` : ''}
+    ${del(i)}</div>`).join('');
+}
+function bindLines(box, key){
+  $(box).addEventListener('input', e=>{
+    const row = e.target.closest('[data-i]'), k = e.target.dataset.k; if(!row || !k) return;
+    S[key][+row.dataset.i][k] = e.target.value; renderResult();
+  });
+  $(box).addEventListener('change', e=>{
+    const row = e.target.closest('[data-i]'), k = e.target.dataset.k; if(!row || !k) return;
+    S[key][+row.dataset.i][k] = e.target.value; renderResult();
+  });
+  $(box).addEventListener('click', e=>{
+    const b = e.target.closest('[data-rm]'); if(!b) return;
+    S[key].splice(+b.dataset.rm, 1); renderLines(); renderResult();
+  });
+}
+bindLines('#s-extras', 'extras'); bindLines('#s-exps', 'expenses');
+$('#s-add-extra').addEventListener('click', ()=>{ S.extras.push({label:'', amount:''}); renderLines(); renderResult(); $('#s-extras .line:last-child input').focus(); });
+$('#s-add-exp').addEventListener('click', ()=>{ S.expenses.push({label:'', amount:'', payer:'owner'}); renderLines(); renderResult(); $('#s-exps .line:last-child input').focus(); });
+
+$('#s-days').addEventListener('input', ()=>{
+  S.days = $('#s-days').value;
+  const d = Math.max(1, Math.round(num(S.days)) || 1);
+  if(!S.rentTouched && S.rate !== ''){ S.rent = num(S.rate) * d; $('#s-rent').value = S.rent; }
+  if(!S.feeTouched){ const car = cars.find(c=>c.id===settleB?.carId); if(car){ Object.assign(S, tierFee(car, d)); $('#s-fee').value = S.fee; $('#s-feeu').value = S.feeUnit; } }
+  renderResult();
+});
+$('#s-rate').addEventListener('input', ()=>{
+  S.rate = $('#s-rate').value;
+  if(!S.rentTouched && S.rate !== ''){ S.rent = num(S.rate) * calcSettle(S).days; $('#s-rent').value = S.rent; }
+  renderResult();
+});
+$('#s-rent').addEventListener('input', ()=>{ S.rent = $('#s-rent').value; S.rentTouched = S.rent !== ''; renderResult(); });
+$('#s-fee').addEventListener('input', ()=>{ S.fee = $('#s-fee').value; S.feeTouched = true; renderResult(); });
+$('#s-feeu').addEventListener('change', ()=>{ S.feeUnit = $('#s-feeu').value; S.feeTouched = true; renderResult(); });
+$('#s-round').addEventListener('click', ()=>{ S.round = !S.round; renderResult(); });
+
+function renderResult(){
+  const r = calcSettle(S);
+  const rb = $('#s-round');
+  rb.setAttribute('aria-pressed', String(S.round));
+  rb.querySelector('.box').textContent = S.round ? '✓' : '';
+  const autoRent = S.rate !== '' ? num(S.rate) * r.days : null;
+  $('#s-rent-hint').textContent = autoRent!=null ? (num(S.rent)===autoRent ? `= ${r.days} วัน × ${fmtN(S.rate)} บาท` : `ราคาตามวัน: ${r.days} × ${fmtN(S.rate)} = ${fmtN(autoRent)} บาท (ใส่ค่าเช่าเองแล้ว)`) : '';
+  if(r.consign){
+    const car = cars.find(c=>c.id===settleB?.carId);
+    $('#s-tier').textContent = `· เช่า ${r.days} วัน ใช้อัตรา${tierOf(r.days)===1?' 1–2 วัน':' 3 วันขึ้นไป'}${S.feeTouched?' (แก้เอง)':''}`;
+    $('#s-fee-hint').textContent = S.feeUnit==='day' ? `${fmtN(S.fee)} × ${r.days} วัน = ${fmtN(r.feeTotal)} บาท` : `${fmtN(r.feeTotal)} บาท ต่อรอบนี้`;
+  }
+  const rows = [];
+  rows.push(`<div class="kv"><span>ค่าเช่า</span><b>${baht(r.rent)}</b></div>`);
+  for(const x of S.extras) if(num(x.amount)) rows.push(`<div class="kv sub"><span>+ ${esc(x.label||'รายรับอื่น')}</span><b>${baht(x.amount)}</b></div>`);
+  if(r.extra) rows.push(`<div class="kv"><span>รายรับรวม</span><b>${baht(r.gross)}</b></div>`);
+  if(S.round) rows.push(`<div class="kv"><span>ปัดเศษขึ้นหลักร้อย ${r.roundDiff ? '' : '(ไม่มีเศษ)'}</span><b class="plus">${r.roundDiff?'+'+fmtN(r.roundDiff)+' → ':''}${baht(r.total)}</b></div>`);
+  if(r.consign){
+    rows.push(`<div class="kv"><span>หักค่าหัวคิวร้าน${S.feeUnit==='day'?` (${fmtN(S.fee)} × ${r.days} วัน)`:''}</span><b class="minus">−${fmtN(r.feeTotal)}</b></div>`);
+    for(const x of S.expenses) if(num(x.amount)) rows.push(`<div class="kv sub"><span>${x.payer==='owner'?'หักจากเจ้าของ':'ร้านออกเอง'}: ${esc(x.label||'ค่าใช้จ่าย')}</span><b class="minus">−${fmtN(x.amount)}</b></div>`);
+    rows.push(`<div class="payout">
+      <div class="owner"><span class="who-l">เจ้าของรถ${S.ownerName?' ('+esc(S.ownerName)+')':''} ได้</span><span class="amt">${baht(r.ownerNet)}</span>
+        <span class="calc">${fmtN(r.total)} − หัวคิว ${fmtN(r.feeTotal)}${r.expOwner?' − ค่าใช้จ่าย '+fmtN(r.expOwner):''}</span></div>
+      <div class="shop"><span class="who-l">ร้านได้</span><span class="amt">${baht(r.shopNet)}</span>
+        <span class="calc">หัวคิว ${fmtN(r.feeTotal)}${r.expShop?' − ร้านออก '+fmtN(r.expShop):''}</span></div></div>`);
+    if(r.ownerNet < 0) rows.push(`<div class="kv"><span style="color:var(--bad)">ยอดเจ้าของติดลบ ตรวจค่าหัวคิว/ค่าใช้จ่ายอีกครั้ง</span></div>`);
+  } else {
+    for(const x of S.expenses) if(num(x.amount)) rows.push(`<div class="kv sub"><span>ค่าใช้จ่าย: ${esc(x.label||'-')}</span><b class="minus">−${fmtN(x.amount)}</b></div>`);
+    rows.push(`<div class="payout single"><div class="shop"><span class="who-l">ร้านได้ (รถของร้าน)</span><span class="amt">${baht(r.shopNet)}</span>
+      <span class="calc">${fmtN(r.total)}${r.expAll?' − ค่าใช้จ่าย '+fmtN(r.expAll):''}</span></div></div>`);
+  }
+  $('#s-result').innerHTML = rows.join('');
+}
+
+function settleRecord(){
+  const r = calcSettle(S);
+  const clean = a => a.filter(x => x.label?.trim() || num(x.amount)).map(x => ({...x, label:(x.label||'').trim(), amount:num(x.amount)}));
+  return {days:r.days, rate:S.rate===''?'':num(S.rate), rent:r.rent, extras:clean(S.extras), expenses:clean(S.expenses), round:!!S.round,
+    gross:r.gross, total:r.total, ownership:S.ownership, ownerName:S.ownerName, fee:S.fee===''?'':num(S.fee), feeUnit:S.feeUnit,
+    feeTotal:r.feeTotal, expOwner:r.expOwner, expShop:r.expShop, ownerNet:r.ownerNet, shopNet:r.shopNet,
+    settledAt:Date.now(), settledBy: me?.displayName || me?.email || null};
+}
+function settleText(b, s){
+  const car = cars.find(c=>c.id===b.carId);
+  const L = [`สรุปยอด ${car?.model || b.carModel || ''} [${car?.plate || b.carPlate || '-'}]`,
+    `ผู้เช่า: ${b.customerName}`, `${fmtDT(b.pickup)} → ${fmtDT(b.returnDate)} (${s.days} วัน)`,
+    `ค่าเช่า: ${s.rate!==''&&num(s.rate)*s.days===s.rent ? `${s.days} × ${fmtN(s.rate)} = ` : ''}${fmtN(s.rent)} บาท`];
+  for(const x of s.extras||[]) L.push(`+ ${x.label||'รายรับอื่น'}: ${fmtN(x.amount)} บาท`);
+  if(s.extras?.length) L.push(`รวม: ${fmtN(s.gross)} บาท`);
+  if(s.round && s.total!==s.gross) L.push(`ปัดเศษเป็น: ${fmtN(s.total)} บาท`);
+  if(s.ownership==='consign'){
+    L.push(`หักค่าหัวคิวร้าน: ${s.feeUnit==='day' ? `${fmtN(s.fee)} × ${s.days} วัน = ` : ''}${fmtN(s.feeTotal)} บาท`);
+    for(const x of s.expenses||[]) L.push(`${x.payer==='owner'?'หัก':'ร้านออก'} ${x.label||'ค่าใช้จ่าย'}: ${fmtN(x.amount)} บาท`);
+    L.push(`เจ้าของรถ${s.ownerName?' ('+s.ownerName+')':''} ได้: ${fmtN(s.ownerNet)} บาท`, `ร้านได้: ${fmtN(s.shopNet)} บาท`);
+  } else {
+    for(const x of s.expenses||[]) L.push(`ค่าใช้จ่าย ${x.label||''}: ${fmtN(x.amount)} บาท`);
+    L.push(`ร้านได้: ${fmtN(s.shopNet)} บาท`);
+  }
+  return L.join('\n');
+}
+async function copyText(t, ok){ try{ await navigator.clipboard.writeText(t); toast(ok); }catch{ toast('คัดลอกไม่ได้ในหน้านี้'); } }
+
+$('#s-copy-one').addEventListener('click', ()=> copyText(settleText(settleB, settleRecord()), 'คัดลอกแล้ว ส่งให้เจ้าของรถทาง LINE ได้เลย'));
+$('#form-settle').addEventListener('submit', async e=>{
+  e.preventDefault();
+  if(!settleId) return;
+  const rec = settleRecord();
+  const btn = $('#s-submit'); btn.disabled = true;
+  const ok = await run(()=>db.collection('bookings').doc(settleId).set({settlement: rec, updatedAt: Date.now()}));
+  btn.disabled = false;
+  if(!ok) return;
+  const car = cars.find(c=>c.id===settleB.carId);
+  addLog(settleB.settlement ? 'edit' : 'add', `${settleB.settlement?'แก้ไขสรุปยอด':'สรุปยอด'}: ${carLabel(car) === 'รถที่ถูกลบ' ? (settleB.carModel||'') : carLabel(car)} · ${settleB.customerName} · ${rec.days} วัน · รายรับ ${fmtN(rec.total)}${rec.round&&rec.total!==rec.gross?' (ปัดจาก '+fmtN(rec.gross)+')':''} · ร้านได้ ${fmtN(rec.shopNet)}${rec.ownership==='consign'?' · '+(rec.ownerName||'เจ้าของ')+' ได้ '+fmtN(rec.ownerNet):''}`);
+  closeModals(); toast('บันทึกสรุปยอดแล้ว');
+});
+$('#s-clear').addEventListener('click', ()=>{
+  const b = settleB;
+  askDelete(`ล้างสรุปยอดคิวของ ${b.customerName} ใช่ไหม? (คิวยังอยู่ แค่กลับเป็น "ยังไม่สรุป")`, async ()=>{
+    if(await run(()=>db.collection('bookings').doc(b.id || settleId).set({settlement: deleteField(), updatedAt: Date.now()}))){
+      addLog('del', `ล้างสรุปยอด: ${b.customerName} (${b.carModel||''})`); toast('ล้างสรุปยอดแล้ว');
+    }
+  });
+});
+
+// ---------- หน้าสรุปยอดทุกคัน ----------
+function monthRange(offset){ const d=new Date(); const a=new Date(d.getFullYear(), d.getMonth()+offset, 1), b=new Date(d.getFullYear(), d.getMonth()+offset+1, 0); return [ymd(a), ymd(b)]; }
+const SRANGES = { today:()=>[addDays(0),addDays(0)], thisMonth:()=>monthRange(0), lastMonth:()=>monthRange(-1), all:()=>['',''] };
+function sRange(){ let a=$('#s-from').value, b=$('#s-to').value; if(a&&!b) b=a; if(b&&!a) a=b; if(a&&b&&b<a) [a,b]=[b,a]; return [a,b]; }
+function summaryData(){
+  const [from, to] = sRange();
+  const inRange = b => { const d=(b.returnDate||'').slice(0,10); return (!from || d>=from) && (!to || d<=to); };
+  const done = bookings.filter(b => b.settlement && inRange(b)).sort((a,b)=>String(a.returnDate).localeCompare(String(b.returnDate)));
+  const pending = bookings.filter(b => !b.settlement && b.status==='คืนแล้ว').sort((a,b)=>String(a.returnDate).localeCompare(String(b.returnDate)));
+  const byCar = new Map();
+  for(const b of done){
+    const car = cars.find(c=>c.id===b.carId);
+    const k = b.carId || b.carPlate;
+    if(!byCar.has(k)) byCar.set(k, {name: car?.model || b.carModel || 'รถที่ถูกลบ', plate: car?.plate || b.carPlate || '-', owner: b.settlement.ownership==='consign' ? b.settlement.ownerName : '', list:[], days:0, total:0, fee:0, ownerNet:0, shopNet:0});
+    const g = byCar.get(k), s = b.settlement;
+    g.list.push(b); g.days += num(s.days); g.total += num(s.total); g.fee += num(s.feeTotal); g.ownerNet += num(s.ownerNet); g.shopNet += num(s.shopNet);
+    if(s.ownership==='consign') g.owner = s.ownerName;
+  }
+  const groups = [...byCar.values()].sort((a,b)=>b.total-a.total);
+  const owners = new Map();
+  for(const b of done) if(b.settlement.ownership==='consign'){
+    const n = b.settlement.ownerName || 'ไม่ระบุชื่อ';
+    const o = owners.get(n) || {name:n, rounds:0, net:0}; o.rounds++; o.net += num(b.settlement.ownerNet); owners.set(n, o);
+  }
+  return {from, to, done, pending, groups, owners:[...owners.values()].sort((a,b)=>b.net-a.net),
+    total: sum(done, b=>b.settlement.total), shop: sum(done, b=>b.settlement.shopNet), owner: sum(done, b=>b.settlement.ownerNet)};
+}
+function renderSummary(){
+  const box = $('#summary');
+  $('#n-pending').textContent = bookings.filter(b=>!b.settlement && b.status==='คืนแล้ว').length || '';
+  document.querySelectorAll('#squick .chip').forEach(c=>{ const [x,y]=SRANGES[c.dataset.srange](); c.setAttribute('aria-pressed', String($('#s-from').value===x && $('#s-to').value===y)); });
+  if(!ready.bookings){ box.innerHTML = emptyHTML('กำลังโหลด…',''); return; }
+  const D = summaryData();
+  let h = '';
+  if(D.pending.length) h += `<div class="pending"><b style="font-family:var(--f-display)">ยังไม่สรุปยอด ${D.pending.length} รอบ</b>${D.pending.map(b=>`
+    <div class="it"><span>${esc(b.carModel || '')} · ${esc(b.customerName)} <span class="meta">คืน ${fmtDT(b.returnDate)}</span></span>${canWrite?`<button class="btn primary sm" data-settle="${b.id}">สรุปยอด</button>`:''}</div>`).join('')}</div>`;
+  h += `<div class="tiles">
+    <div class="tile"><span>รายรับรวม</span><b>${baht(D.total)}</b></div>
+    <div class="tile shop"><span>ร้านได้สุทธิ</span><b>${baht(D.shop)}</b></div>
+    <div class="tile owner"><span>จ่ายเจ้าของรถ</span><b>${baht(D.owner)}</b></div>
+    <div class="tile"><span>จำนวนรอบ</span><b>${D.done.length}</b></div></div>`;
+  if(!D.done.length){ box.innerHTML = h + emptyHTML('ยังไม่มีรอบที่สรุปยอดในช่วงนี้','เมื่อเปลี่ยนคิวเป็น "คืนรถแล้ว" ระบบจะเปิดหน้าต่างสรุปยอดให้'); return; }
+  if(D.owners.length) h += `<div class="owners"><h3>ยอดที่ต้องจ่ายเจ้าของรถ</h3>${D.owners.map(o=>`<div class="kv"><span>${esc(o.name)} <span class="meta">${o.rounds} รอบ</span></span><b style="color:var(--ok)">${baht(o.net)}</b></div>`).join('')}</div>`;
+  h += D.groups.map(g=>`<details class="carsum"><summary>
+      <h3>${esc(g.name)} <span class="plate">${esc(g.plate)}</span></h3><span class="meta">${g.list.length} รอบ · ${g.days} วัน</span>
+      <div class="nums"><span>รับ <b>${fmtN(g.total)}</b></span>${g.owner?`<span class="o">${esc(g.owner)} <b>${fmtN(g.ownerNet)}</b></span>`:''}<span class="s">ร้าน <b>${fmtN(g.shopNet)}</b></span></div>
+    </summary><ol>${g.list.map(b=>{ const s=b.settlement; return `<li>
+      <span>${esc(b.customerName)} · ${fmtDT(b.pickup).replace(/ \d+:\d+ น\./,'')} → ${fmtDT(b.returnDate).replace(/ \d+:\d+ น\./,'')} (${s.days} วัน)</span>
+      <button class="icon-btn" data-settle="${b.id}" aria-label="ดู/แก้สรุปยอด">${ICON.calc}</button>
+      <span class="m">รับ ${fmtN(s.total)}${s.round&&s.total!==s.gross?' (ปัด)':''}${s.ownership==='consign'?` · หัวคิว ${fmtN(s.feeTotal)} · เจ้าของ ${fmtN(s.ownerNet)}`:''} · ร้าน ${fmtN(s.shopNet)}</span></li>`; }).join('')}</ol></details>`).join('');
+  box.innerHTML = h;
+}
+function summaryText(){
+  const D = summaryData();
+  const L = [`สรุปยอดร้านเช่ารถ ${D.from ? (D.from===D.to ? D.from : D.from+' ถึง '+D.to) : '(ทั้งหมด)'}`, '-'.repeat(30),
+    `รายรับรวม: ${fmtN(D.total)} บาท (${D.done.length} รอบ)`, `ร้านได้สุทธิ: ${fmtN(D.shop)} บาท`, `จ่ายเจ้าของรถ: ${fmtN(D.owner)} บาท`];
+  if(D.owners.length){ L.push('', 'จ่ายเจ้าของรถ:'); for(const o of D.owners) L.push(`- ${o.name}: ${fmtN(o.net)} บาท (${o.rounds} รอบ)`); }
+  L.push('', 'แยกรายคัน:');
+  for(const g of D.groups) L.push(`- ${g.name} [${g.plate}] ${g.list.length} รอบ: รับ ${fmtN(g.total)}${g.owner?` · ${g.owner} ${fmtN(g.ownerNet)}`:''} · ร้าน ${fmtN(g.shopNet)}`);
+  return L.join('\n');
+}
+$('#s-copy').addEventListener('click', ()=>copyText(summaryText(), 'คัดลอกสรุปยอดแล้ว'));
+['#s-from','#s-to'].forEach(s=>$(s).addEventListener('input', renderSummary));
+document.querySelectorAll('#squick .chip').forEach(c=>c.addEventListener('click', ()=>{ const [a,b]=SRANGES[c.dataset.srange](); $('#s-from').value=a; $('#s-to').value=b; renderSummary(); }));
 
 // ---------- delete confirm ----------
 let pendingDelete = null;
@@ -720,8 +1162,9 @@ function askDelete(text, fn){ $('#cf-text').textContent=text; pendingDelete=fn; 
 $('#cf-ok').addEventListener('click', async ()=>{ const fn=pendingDelete; pendingDelete=null; closeModals(); if(fn) await fn(); });
 
 document.addEventListener('click', e=>{
-  const t = e.target.closest('[data-edit-booking],[data-del-booking],[data-edit-car],[data-del-car]');
+  const t = e.target.closest('[data-edit-booking],[data-del-booking],[data-edit-car],[data-del-car],[data-settle]');
   if(!t) return;
+  if(t.dataset.settle){ e.preventDefault(); openSettle(t.dataset.settle); return; }
   if(t.dataset.editBooking) openBooking(t.dataset.editBooking);
   if(t.dataset.editCar) openCar(t.dataset.editCar);
   if(t.dataset.delBooking){
@@ -742,7 +1185,7 @@ document.addEventListener('click', e=>{
 // ---------- tabs & filters ----------
 function switchTab(t){
   tab=t;
-  ['bookings','cars','history'].forEach(k=>{
+  ['bookings','cars','summary','history'].forEach(k=>{
     $('#view-'+k).hidden = k!==t; $('#view-'+k).style.display = k===t?'flex':'none';
     $('#tab-'+k).setAttribute('aria-selected', String(k===t));
   });
