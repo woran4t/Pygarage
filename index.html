@@ -61,7 +61,11 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .dot.live{background:#4fd1a0;box-shadow:0 0 0 3px rgba(79,209,160,.25)}
 .dot.slow{background:#f5c060}
 .stats{display:flex;gap:8px;font-size:13px}
-.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);padding:5px 12px;border-radius:9px;white-space:nowrap}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);padding:7px 12px;border-radius:9px;white-space:nowrap;color:inherit;font:inherit;font-size:13px;cursor:pointer;min-height:40px;-webkit-tap-highlight-color:transparent}
+.stat:hover{background:rgba(255,255,255,.18)}
+.stat:active{transform:scale(.97)}
+.stat[aria-pressed="true"]{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.6)}
+.stat .go{opacity:.6;margin-left:2px}
 .stat b{font-family:var(--f-display);font-size:15px;font-variant-numeric:tabular-nums;margin:0 2px}
 .stat span{color:var(--bar-muted)}
 
@@ -80,6 +84,17 @@ main.wrap{padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
 .search{position:relative;flex:1 1 200px;max-width:300px}
 .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint)}
 .search input{width:100%;padding-left:32px}
+.daterange{display:flex;align-items:center;gap:6px;flex:0 1 auto}
+.daterange span{font-size:13px;color:var(--muted)}
+.daterange .field{min-width:0}
+.quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.quick .lbl{font-size:13px;color:var(--muted);margin-right:2px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-size:13px;cursor:pointer;min-height:36px}
+.chip:hover{color:var(--fg);border-color:var(--line-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.when{font-size:12px;font-family:var(--f-display);color:var(--muted);text-align:right}
+.when.soon{color:var(--accent)} .when.late{color:var(--bad)}
+@media (max-width:560px){.daterange{width:100%}.daterange .field{flex:1}.search{max-width:none}}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-family:var(--f-display);font-weight:500;font-size:14px;white-space:nowrap}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
@@ -179,9 +194,9 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
     </div>
     <div class="userchip" id="userchip" hidden><span id="user-email"></span><button id="btn-logout">ออกจากระบบ</button></div>
     <div class="stats">
-      <div class="stat"><span>รถทั้งหมด</span> <b id="st-cars">0</b> คัน</div>
-      <div class="stat"><span>กำลังเช่า</span> <b id="st-active">0</b> รายการ</div>
-      <div class="stat"><span>จองรอรับ</span> <b id="st-booked">0</b></div>
+      <button class="stat" data-jump="cars" aria-pressed="false" title="ดูรถทั้งหมด"><span>รถทั้งหมด</span> <b id="st-cars">0</b> คัน</button>
+      <button class="stat" data-jump="active" aria-pressed="false" title="ดูรถที่กำลังเช่า เรียงตามเวลาคืนที่ใกล้สุด"><span>กำลังเช่า</span> <b id="st-active">0</b> รายการ<span class="go">›</span></button>
+      <button class="stat" data-jump="booked" aria-pressed="false" title="ดูคิวจอง เรียงตามเวลารับรถที่ใกล้สุด"><span>จองรอรับ</span> <b id="st-booked">0</b><span class="go">›</span></button>
     </div>
   </div>
 </header>
@@ -207,9 +222,21 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
           <input class="field" id="f-search" type="search" placeholder="ค้นหาชื่อผู้เช่า, เบอร์, รถ, ทะเบียน" aria-label="ค้นหา"></div>
         <select class="field" id="f-cat" aria-label="ประเภทรถ"><option value="ALL">ประเภทรถทั้งหมด</option></select>
         <select class="field" id="f-status" aria-label="สถานะ"><option value="ALL">สถานะทั้งหมด</option></select>
-        <input class="field" id="f-date" type="date" aria-label="วันที่">
+        <div class="daterange">
+          <input class="field" id="f-date" type="date" aria-label="ตั้งแต่วันที่">
+          <span>ถึง</span>
+          <input class="field" id="f-to" type="date" aria-label="ถึงวันที่">
+        </div>
         <button class="btn ghost" id="f-reset" title="ล้างตัวกรอง">ล้าง</button>
       </div>
+    </div>
+    <div class="quick" id="quick">
+      <span class="lbl">ช่วงวันที่:</span>
+      <button class="chip" data-range="today" aria-pressed="false">วันนี้</button>
+      <button class="chip" data-range="tomorrow" aria-pressed="false">พรุ่งนี้</button>
+      <button class="chip" data-range="7d" aria-pressed="false">7 วันข้างหน้า</button>
+      <button class="chip" data-range="30d" aria-pressed="false">30 วันข้างหน้า</button>
+      <button class="chip" data-range="all" aria-pressed="true">ทั้งหมด</button>
     </div>
     <div class="grid" id="bookings"></div>
   </section>
@@ -232,6 +259,7 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
           <input class="field" id="h-search" type="search" placeholder="ค้นหาในประวัติ" aria-label="ค้นหาในประวัติ"></div>
         <button class="btn ghost" id="h-copy"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>คัดลอกเป็นข้อความ</button>
         <button class="btn ghost" id="h-save"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>บันทึกไฟล์ .txt</button>
+        <button class="btn ghost" id="h-backup"><svg class="i" viewBox="0 0 24 24"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>สำรองข้อมูล (.json)</button>
       </div>
     </div>
     <div class="ledger" id="ledger"></div>
@@ -384,16 +412,20 @@ function render(){
 function renderBookings(){
   const box = $('#bookings');
   if(!ready.bookings){ box.innerHTML = emptyHTML('กำลังโหลดคิวเช่า…','รายการคิวจะขึ้นที่นี่ทันทีที่เชื่อมต่อฐานข้อมูลกลางได้'); return; }
-  const q = $('#f-search').value.trim().toLowerCase(), fc=$('#f-cat').value, fs=$('#f-status').value, fd=$('#f-date').value;
+  const q = $('#f-search').value.trim().toLowerCase(), fc=$('#f-cat').value, fs=$('#f-status').value;
+  const [from, to] = dateRange();
+  syncChips();
   const list = bookings.filter(b=>{
     const car = cars.find(c=>c.id===b.carId);
     const hay = [b.customerName,b.customerPhone,car?.model,car?.plate,b.carLabel,b.notes].join(' ').toLowerCase();
     if(q && !hay.includes(q)) return false;
     if(fc!=='ALL' && (car?.category||b.carCategory)!==fc) return false;
     if(fs!=='ALL' && b.status!==fs) return false;
-    if(fd && !(fd >= (b.pickup||'').slice(0,10) && fd <= (b.returnDate||'').slice(0,10))) return false;
+    // คิวที่คาบเกี่ยวกับช่วงวันที่เลือก (รับก่อนวันสิ้นสุด และคืนหลังวันเริ่ม)
+    if(from && (b.returnDate||'').slice(0,10) < from) return false;
+    if(to && (b.pickup||'').slice(0,10) > to) return false;
     return true;
-  }).sort((a,b)=>(STATUS[a.status]?.order??9)-(STATUS[b.status]?.order??9) || String(a.pickup).localeCompare(String(b.pickup)));
+  }).sort(byNearest);
 
   if(!list.length){
     box.innerHTML = bookings.length
@@ -405,7 +437,9 @@ function renderBookings(){
     const car = cars.find(c=>c.id===b.carId);
     const st = STATUS[b.status] || {label:b.status,cls:'s-returned',card:''};
     const cat = CATS[car?.category||b.carCategory] || 'อื่นๆ';
+    const w = whenText(b);
     return `<article class="card ${st.card}">
+      ${w?`<div class="when ${w.cls}">${esc(w.text)}</div>`:''}
       <div class="card-top"><span class="pill ${st.cls}">${esc(st.label)}</span>
         ${canWrite?`<div><button class="icon-btn" data-edit-booking="${b.id}" title="แก้ไข" aria-label="แก้ไข">${ICON.edit}</button><button class="icon-btn del" data-del-booking="${b.id}" title="ลบ" aria-label="ลบ">${ICON.del}</button></div>`:''}</div>
       <div class="carbox"><div class="cat">${esc(cat)}</div><h3>${esc(car?.model || b.carModel || 'รถที่ถูกลบจากระบบ')}</h3><span class="plate">${esc(car?.plate || b.carPlate || '-')}</span></div>
@@ -415,6 +449,71 @@ function renderBookings(){
       <div class="card-foot"><span>ค่าเช่ารวม</span><span class="price">${money(b.price)||'<span class="meta">ไม่ระบุ</span>'}</span></div>
     </article>`;
   }).join('');
+}
+
+// ---------- วันที่ / ใกล้สุด ----------
+function ymd(d){ const x=new Date(d); x.setMinutes(x.getMinutes()-x.getTimezoneOffset()); return x.toISOString().slice(0,10); }
+function addDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d); }
+const RANGES = {
+  today:   ()=>[addDays(0), addDays(0)],
+  tomorrow:()=>[addDays(1), addDays(1)],
+  '7d':    ()=>[addDays(0), addDays(6)],
+  '30d':   ()=>[addDays(0), addDays(29)],
+  all:     ()=>['','']
+};
+// ใส่วันเดียวก็ได้ (ช่องไหนก็ได้) = ดูเฉพาะวันนั้น
+function dateRange(){
+  let a=$('#f-date').value, b=$('#f-to').value;
+  if(a && !b) b=a; if(b && !a) a=b;
+  if(a && b && b<a) [a,b]=[b,a];
+  return [a,b];
+}
+function setRange(k){ const [a,b]=RANGES[k](); $('#f-date').value=a; $('#f-to').value=b; renderBookings(); }
+function syncChips(){
+  const a=$('#f-date').value, b=$('#f-to').value;
+  document.querySelectorAll('#quick .chip').forEach(c=>{
+    const [x,y]=RANGES[c.dataset.range](); c.setAttribute('aria-pressed', String(a===x && b===y));
+  });
+  const fs=$('#f-status').value, onB = tab==='bookings';
+  document.querySelectorAll('.stat[data-jump]').forEach(s=>{
+    const j=s.dataset.jump;
+    const on = j==='cars' ? tab==='cars' : onB && fs===(j==='active'?'กำลังเช่า':'จองแล้ว');
+    s.setAttribute('aria-pressed', String(on));
+  });
+}
+// กำลังเช่า → เรียงตามเวลาคืนที่ใกล้สุด, จองแล้ว → ตามเวลารับที่ใกล้สุด, คืนแล้ว/ยกเลิก → ล่าสุดก่อน
+function byNearest(a,b){
+  const o = (STATUS[a.status]?.order??9)-(STATUS[b.status]?.order??9);
+  if(o) return o;
+  if(a.status==='กำลังเช่า') return String(a.returnDate).localeCompare(String(b.returnDate));
+  if(a.status==='จองแล้ว') return String(a.pickup).localeCompare(String(b.pickup));
+  return String(b.pickup).localeCompare(String(a.pickup));
+}
+function span(ms){
+  const m=Math.round(Math.abs(ms)/6e4);
+  if(m<60) return m+' นาที';
+  if(m<1440){ const h=Math.floor(m/60), r=m%60; return h+' ชม.'+(r&&h<6?' '+r+' นาที':''); }
+  const d=Math.floor(m/1440), h=Math.round((m%1440)/60); return d+' วัน'+(h?' '+h+' ชม.':'');
+}
+function whenText(b){
+  let t, lateTxt, soonTxt;
+  if(b.status==='กำลังเช่า'){ t=b.returnDate; soonTxt='คืนรถในอีก '; lateTxt='เลยกำหนดคืน '; }
+  else if(b.status==='จองแล้ว'){ t=b.pickup; soonTxt='รับรถในอีก '; lateTxt='เลยเวลารับรถ '; }
+  else return null;
+  const ms = new Date(t)-Date.now(); if(isNaN(ms)) return null;
+  if(ms<0) return {text:lateTxt+span(ms), cls:'late'};
+  return {text:soonTxt+span(ms), cls: ms<24*36e5?'soon':''};
+}
+function jump(kind){
+  if(kind==='cars'){ switchTab('cars'); syncChips(); scrollTo({top:0,behavior:'smooth'}); return; }
+  const want = kind==='active' ? 'กำลังเช่า' : 'จองแล้ว';
+  const again = tab==='bookings' && $('#f-status').value===want;
+  switchTab('bookings');
+  $('#f-search').value=''; $('#f-cat').value='ALL'; $('#f-date').value=''; $('#f-to').value='';
+  $('#f-status').value = again ? 'ALL' : want;   // กดซ้ำ = กลับไปดูทั้งหมด
+  renderBookings();
+  scrollTo({top:0,behavior:'smooth'});
+  if(!again){ const n=bookings.filter(b=>b.status===want).length; toast(n ? `${STATUS[want].label} ${n} รายการ · ใกล้สุดอยู่บนสุด` : `ไม่มีรายการ${STATUS[want].label}`); }
 }
 
 function renderCars(){
@@ -632,8 +731,12 @@ function switchTab(t){
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 $('#btn-add-booking').addEventListener('click',()=>openBooking());
 $('#btn-add-car').addEventListener('click',()=>openCar());
-['#f-search','#f-cat','#f-status','#f-date'].forEach(s=>$(s).addEventListener('input',renderBookings));
-$('#f-reset').addEventListener('click',()=>{ $('#f-search').value=''; $('#f-cat').value='ALL'; $('#f-status').value='ALL'; $('#f-date').value=''; renderBookings(); });
+['#f-search','#f-cat','#f-status','#f-date','#f-to'].forEach(s=>$(s).addEventListener('input',renderBookings));
+$('#f-reset').addEventListener('click',()=>{ $('#f-search').value=''; $('#f-cat').value='ALL'; $('#f-status').value='ALL'; $('#f-date').value=''; $('#f-to').value=''; renderBookings(); });
+document.querySelectorAll('#quick .chip').forEach(c=>c.addEventListener('click',()=>setRange(c.dataset.range)));
+document.querySelectorAll('.stat[data-jump]').forEach(s=>s.addEventListener('click',()=>jump(s.dataset.jump)));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',syncChips));
+setInterval(()=>{ if(tab==='bookings' && document.visibilityState==='visible') renderBookings(); }, 60000); // อัปเดต "อีกกี่ชม." ทุกนาที
 $('#h-search').addEventListener('input',renderLedger);
 
 // fill selects
@@ -656,6 +759,14 @@ $('#h-save').addEventListener('click', async ()=>{
   const a = Object.assign(document.createElement('a'),{href:url,download:`car-rental-history-${stamp}.txt`});
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+$('#h-backup').addEventListener('click', ()=>{
+  if(!ready.cars || !ready.bookings){ toast('รอโหลดข้อมูลให้ครบก่อน แล้วกดอีกครั้ง'); return; }
+  const data = {exportedAt:new Date().toISOString(), cars, bookings, logs};
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const a = Object.assign(document.createElement('a'),{href:url,download:`pygarage-backup-${ymd(new Date())}.json`});
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast(`สำรองแล้ว: รถ ${cars.length} คัน · คิว ${bookings.length} รายการ`);
+});
 
 // ---------- boot ----------
 try{ const t=localStorage.getItem('crm-tab'); if(t && $('#view-'+t)) switchTab(t); else switchTab('bookings'); }catch{ switchTab('bookings'); }
@@ -665,7 +776,7 @@ render();
 function wrapDb(){
   return { collection: name => ({ doc: id => {
     const r = id ? doc(store, name, id) : doc(collection(store, name));
-    return { id: r.id, set: d => setDoc(r, d), delete: () => deleteDoc(r) };
+    return { id: r.id, set: d => setDoc(r, d, {merge:true}), delete: () => deleteDoc(r) };
   }})};
 }
 function subscribe(){
