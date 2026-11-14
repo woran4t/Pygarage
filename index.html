@@ -65,7 +65,8 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .stat:hover{background:rgba(255,255,255,.18)}
 .stat:active{transform:scale(.97)}
 .stat[aria-pressed="true"]{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.6)}
-.stat .go{opacity:.6;margin-left:2px}
+.stat em{font-style:normal}
+.stat .go{font-style:normal;opacity:.6;margin-left:3px}
 .stat b{font-family:var(--f-display);font-size:15px;font-variant-numeric:tabular-nums;margin:0 2px}
 .stat span{color:var(--bar-muted)}
 
@@ -84,9 +85,14 @@ main.wrap{padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
 .search{position:relative;flex:1 1 200px;max-width:300px}
 .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint)}
 .search input{width:100%;padding-left:32px}
-.daterange{display:flex;align-items:center;gap:6px;flex:0 1 auto}
-.daterange span{font-size:13px;color:var(--muted)}
-.daterange .field{min-width:0}
+.daterange{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 1 340px;min-width:0}
+.dr{position:relative;display:block;min-width:0}
+.dr span{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--faint);pointer-events:none;z-index:1}
+.dr .field{padding-left:52px}
+/* iOS: ช่องวันที่มีความกว้างขั้นต่ำของตัวเอง ทำให้ล้นจอ */
+input[type="date"].field,input[type="datetime-local"].field{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;min-height:40px;text-align:left}
+input[type="date"]::-webkit-date-and-time-value,input[type="datetime-local"]::-webkit-date-and-time-value{text-align:left;margin:0}
+body{overflow-x:clip}
 .quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .quick .lbl{font-size:13px;color:var(--muted);margin-right:2px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-size:13px;cursor:pointer;min-height:36px}
@@ -94,7 +100,22 @@ main.wrap{padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .when{font-size:12px;font-family:var(--f-display);color:var(--muted);text-align:right}
 .when.soon{color:var(--accent)} .when.late{color:var(--bad)}
-@media (max-width:560px){.daterange{width:100%}.daterange .field{flex:1}.search{max-width:none}}
+@media (max-width:560px){
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .toolbar .filters .search,.toolbar .filters .daterange{grid-column:1/-1;max-width:none}
+  .toolbar .filters select{width:100%}
+  #f-reset{grid-column:1/-1}
+  #btn-add-booking,#btn-add-car{width:100%;min-height:44px}
+  .chip{flex:1 0 auto}
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+  .stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:6px 4px;white-space:nowrap;line-height:1.3;min-height:52px;min-width:0}
+  .stat span{font-size:12px}
+  .stat b{font-size:17px}
+  .userchip{width:100%;justify-content:space-between}
+  .userchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+}
+@media (max-width:359px){.daterange{grid-template-columns:1fr}}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-family:var(--f-display);font-weight:500;font-size:14px;white-space:nowrap}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
@@ -194,9 +215,9 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
     </div>
     <div class="userchip" id="userchip" hidden><span id="user-email"></span><button id="btn-logout">ออกจากระบบ</button></div>
     <div class="stats">
-      <button class="stat" data-jump="cars" aria-pressed="false" title="ดูรถทั้งหมด"><span>รถทั้งหมด</span> <b id="st-cars">0</b> คัน</button>
-      <button class="stat" data-jump="active" aria-pressed="false" title="ดูรถที่กำลังเช่า เรียงตามเวลาคืนที่ใกล้สุด"><span>กำลังเช่า</span> <b id="st-active">0</b> รายการ<span class="go">›</span></button>
-      <button class="stat" data-jump="booked" aria-pressed="false" title="ดูคิวจอง เรียงตามเวลารับรถที่ใกล้สุด"><span>จองรอรับ</span> <b id="st-booked">0</b><span class="go">›</span></button>
+      <button class="stat" data-jump="cars" aria-pressed="false" title="ดูรถทั้งหมด"><span>รถทั้งหมด</span> <em><b id="st-cars">0</b> คัน</em></button>
+      <button class="stat" data-jump="active" aria-pressed="false" title="ดูรถที่กำลังเช่า เรียงตามเวลาคืนที่ใกล้สุด"><span>กำลังเช่า</span> <em><b id="st-active">0</b> รายการ<i class="go">›</i></em></button>
+      <button class="stat" data-jump="booked" aria-pressed="false" title="ดูคิวจอง เรียงตามเวลารับรถที่ใกล้สุด"><span>จองรอรับ</span> <em><b id="st-booked">0</b> คิว<i class="go">›</i></em></button>
     </div>
   </div>
 </header>
@@ -223,9 +244,8 @@ label.f .field{width:100%;font-size:15px;color:var(--fg)}
         <select class="field" id="f-cat" aria-label="ประเภทรถ"><option value="ALL">ประเภทรถทั้งหมด</option></select>
         <select class="field" id="f-status" aria-label="สถานะ"><option value="ALL">สถานะทั้งหมด</option></select>
         <div class="daterange">
-          <input class="field" id="f-date" type="date" aria-label="ตั้งแต่วันที่">
-          <span>ถึง</span>
-          <input class="field" id="f-to" type="date" aria-label="ถึงวันที่">
+          <label class="dr"><span>ตั้งแต่</span><input class="field" id="f-date" type="date" aria-label="ตั้งแต่วันที่"></label>
+          <label class="dr"><span>ถึง</span><input class="field" id="f-to" type="date" aria-label="ถึงวันที่"></label>
         </div>
         <button class="btn ghost" id="f-reset" title="ล้างตัวกรอง">ล้าง</button>
       </div>
